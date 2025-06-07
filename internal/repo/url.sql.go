@@ -46,3 +46,16 @@ func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, erro
 	)
 	return i, err
 }
+
+const isShortCodeAvailable = `-- name: IsShortCodeAvailable :one
+select not exists (
+  select 1 from urls where short_code = $1
+) as is_available
+`
+
+func (q *Queries) IsShortCodeAvailable(ctx context.Context, shortCode string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isShortCodeAvailable, shortCode)
+	var is_available bool
+	err := row.Scan(&is_available)
+	return is_available, err
+}
