@@ -10,5 +10,21 @@ insert into urls (
 
 -- name: IsShortCodeAvailable :one
 select not exists (
-  select 1 from urls where short_code = $1
+  select 
+    1 
+  from 
+    urls 
+  where 
+    short_code = $1
 ) as is_available;
+
+-- name: GetURLByShortCode :one
+select 
+  * 
+from 
+  urls 
+where 
+  short_code = $1
+  and 
+  expired_at > current_timestamp
+;

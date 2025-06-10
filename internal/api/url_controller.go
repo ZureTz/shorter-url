@@ -8,19 +8,27 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// URLService defines the interface for URL-related operations.
+// URLService defines the interface for URL-related operations
 type URLService interface {
-	CreateURL(ctx context.Context, req model.CreateURLRequest) (*model.CreateURLResponse, error) 
+	CreateShortURL(ctx context.Context, req model.CreateShortURLRequest) (*model.CreateShortURLResponse, error)
+	GetLongURLInfo(ctx context.Context, shortURL string) (string, error)
 }
 
 type URLHandler struct {
 	urlService URLService
 }
 
+// NewURLHandler creates a new URLHandler with the provided URLService
+func NewURLHandler(urlService URLService) *URLHandler {
+	return &URLHandler{
+		urlService: urlService,
+	}
+}
+
 // POST /api/url original_url, custom_code, duration -> short_url, expired_at
-func (h *URLHandler) CreateURL(c echo.Context) error{
+func (h *URLHandler) CreateShortURL(c echo.Context) error {
 	// Extract parameters from the request
-	var req model.CreateURLRequest
+	var req model.CreateShortURLRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -31,9 +39,9 @@ func (h *URLHandler) CreateURL(c echo.Context) error{
 	}
 
 	// Call the URL service to create the shortened URL
-	resp, err := h.urlService.CreateURL(c.Request().Context(), req)
+	resp, err := h.urlService.CreateShortURL(c.Request().Context(), req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error()) 
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Return the response with the shortened URL and expiration date
@@ -41,5 +49,16 @@ func (h *URLHandler) CreateURL(c echo.Context) error{
 }
 
 // GET /:short_code (redirect to original_url)
+func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
+	// Get code from the URL path
+	shortcode := c.Param("short_code")
 
+	// Get the original URL from the service using the code
+	originalURL, err := h.urlService.GetLongURLInfo(c.Request().Context(), shortcode)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
+	// Redirect to the original URL
+	return c.Redirect(http.StatusPermanentRedirect, originalURL)
+}

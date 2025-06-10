@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -10,29 +11,39 @@ import (
 	"github.com/ZureTz/shorter-url/internal/repo"
 )
 
-type ShortCodeGenerator interface {
+type CodeGenerator interface {
 	GenerateShortCode() string
 }
 
 type Cacher interface {
 	StoreURLToCache(ctx context.Context, urlInfo repo.Url) error
+	GetURLFromCache(ctx context.Context, shortCode string) (*repo.Url, error)
 }
 
 type URLService struct {
 	querier         repo.Querier
-	codeGenerator   ShortCodeGenerator
 	cacher          Cacher
+	codeGenerator   CodeGenerator
 	defaultDuration time.Duration
 	baseURL         string
 }
 
-// CreateURL creates a new shortened URL based on the provided request.
-// And returns the response containing the shortened URL and its expiration date.
-func (s *URLService) CreateURL(ctx context.Context, req model.CreateURLRequest) (*model.CreateURLResponse, error) {
+// NewURLService creates a new instance of URLService with the provided dependencies
+func NewURLService(db* sql.DB, cacher Cacher, codeGenerator CodeGenerator, defaultDuration time.Duration, baseURL string) *URLService {
+	return &URLService{
+		querier:         repo.New(db),
+		cacher:          cacher,
+		codeGenerator:   codeGenerator,
+		defaultDuration: defaultDuration,
+		baseURL:         baseURL,
+	}
+}
+
+// CreateShortURL creates a new shortened URL based on the provided request
+// And returns the response containing the shortened URL and its expiration date
+func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortURLRequest) (*model.CreateShortURLResponse, error) {
 	var shortCode string
 	var isCustom bool
-	var expiredAt time.Time
-
 	// Check if a custom code is provided
 	if req.CustomCode != "" {
 		// Check if the custom code is available
@@ -58,6 +69,7 @@ func (s *URLService) CreateURL(ctx context.Context, req model.CreateURLRequest) 
 	}
 
 	// Check if a duration is provided
+	var expiredAt time.Time
 	if req.Duration != nil {
 		// Calculate the expiration date (now + (*duration) * hours)
 		expiredAt = time.Now().Add(time.Duration(*req.Duration) * time.Hour)
@@ -82,10 +94,39 @@ func (s *URLService) CreateURL(ctx context.Context, req model.CreateURLRequest) 
 		return nil, err
 	}
 
-	return &model.CreateURLResponse{
-		ShortURL:  s.baseURL + urlInfo.ShortCode,
+	return &model.CreateShortURLResponse{
+		ShortURL:  s.baseURL + "/" + urlInfo.ShortCode,
 		ExpiredAt: urlInfo.ExpiredAt,
 	}, nil
+}
+
+// GetLongURLInfo retrieves the original URL information based on the provided short URL
+func (s *URLService) GetLongURLInfo(ctx context.Context, shortCode string) (string, error) {
+	// Query the cache first to find if the short URL exists
+	originalURLFromCache, err := s.cacher.GetURLFromCache(ctx, shortCode)
+	if err != nil {
+		return "", err
+	}
+
+	// If the URL exists in the cache, return the original URL
+	if originalURLFromCache != nil {
+		return originalURLFromCache.OriginalUrl, nil
+	}
+
+	// Otherwise, query the database
+	originalURLFromDB, err := s.querier.GetURLByShortCode(ctx, shortCode)
+	if err != nil {
+		return "", err
+	}
+
+	// Then store the URL info in the cache for future requests
+	err = s.cacher.StoreURLToCache(ctx, originalURLFromDB)
+	if err != nil {
+		return "", err
+	}
+
+	// Finally, return the original URL
+	return originalURLFromDB.OriginalUrl, nil
 }
 
 // Generate the short code, search for availability
