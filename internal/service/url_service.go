@@ -22,21 +22,21 @@ type Cacher interface {
 }
 
 type URLService struct {
-	querier         repo.Querier
-	cacher          Cacher
-	codeGenerator   CodeGenerator
-	defaultDuration time.Duration
-	baseURL         string
+	querier           repo.Querier
+	cacher            Cacher
+	codeGenerator     CodeGenerator
+	defaultExpiration time.Duration
+	baseURL           string
 }
 
 // NewURLService creates a new instance of URLService with the provided dependencies
 func NewURLService(db *sql.DB, cacher Cacher, codeGenerator CodeGenerator, conf config.ServiceConfig) *URLService {
 	return &URLService{
-		querier:         repo.New(db),
-		cacher:          cacher,
-		codeGenerator:   codeGenerator,
-		defaultDuration: conf.DefaultDuration,
-		baseURL:         conf.BaseURL,
+		querier:           repo.New(db),
+		cacher:            cacher,
+		codeGenerator:     codeGenerator,
+		defaultExpiration: conf.DefaultExpiration,
+		baseURL:           conf.BaseURL,
 	}
 }
 
@@ -72,11 +72,11 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 	// Check if a duration is provided
 	var expiredAt time.Time
 	if req.Duration != nil {
-		// Calculate the expiration date (now + (*duration) * hours)
-		expiredAt = time.Now().Add(time.Duration(*req.Duration) * time.Hour)
+		// Calculate the expiration date (in hours)
+		expiredAt = time.Now().UTC().Add(time.Duration(*req.Duration) * time.Hour)
 	} else {
 		// Use the default duration if not provided
-		expiredAt = time.Now().Add(s.defaultDuration * time.Hour)
+		expiredAt = time.Now().UTC().Add(s.defaultExpiration)
 	}
 
 	// Insert into the database

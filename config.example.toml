@@ -6,24 +6,25 @@ database_name = "url_db"
 username = "user"
 password = "pass"
 ssl_mode = "disable"
-max_idle_connections = 10
-max_open_connections = 100
+max_idle_conns = 10
+max_open_conns = 100
 
 [cacher]
 cacher_url = "localhost:6379"
 password = ""
 db = 0
-average_expiration = 3600
+average_expiration = "1h"
 
 [code_generator]
 short_code_length = 7
 
 [service]
 base_url = "http://localhost:8080"
-default_expiration = 86400
-outdated_url_cleanup_interval = 3600
+default_expiration = "5h"
+outdated_url_cleanup_interval = "2h"
 
 [server]
 port = 8080
-write_timeout = 30
-read_timeout = 30
+write_timeout = "10s"
+read_timeout = "10s"
+graceful_shutdown_timeout = "5s"

@@ -60,5 +60,5 @@ func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
 	}
 
 	// Redirect to the original URL
-	return c.Redirect(http.StatusPermanentRedirect, originalURL)
+	return c.Redirect(http.StatusFound, originalURL)
 }

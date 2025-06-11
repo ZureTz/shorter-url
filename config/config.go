@@ -53,14 +53,14 @@ type CodeGeneratorConfig struct {
 
 type ServiceConfig struct {
 	BaseURL                    string        `mapstructure:"base_url"`
-	DefaultDuration            time.Duration `mapstructure:"default_duration"`
+	DefaultExpiration          time.Duration `mapstructure:"default_expiration"`
 	OutdatedURLCleanupInterval time.Duration `mapstructure:"outdated_url_cleanup_interval"`
 }
 
 type ServerConfig struct {
-	Port         int           `mapstructure:"port"`
-	WriteTimeout time.Duration `mapstructure:"write_timeout"`
-	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
+	Port                    int           `mapstructure:"port"`
+	WriteTimeout            time.Duration `mapstructure:"write_timeout"`
+	ReadTimeout             time.Duration `mapstructure:"read_timeout"`
 	GracefulShutdownTimeout time.Duration `mapstructure:"graceful_shutdown_timeout"`
 }
 
