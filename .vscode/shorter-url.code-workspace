@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    },
+    {
+      "path": "../frontend"
+    }
+  ],
+  "settings": {
+    "cSpell.words": ["labstack", "alphanum", "sqlc", "sslmode"]
+  }
+}
