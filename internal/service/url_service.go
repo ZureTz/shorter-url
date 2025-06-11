@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ZureTz/shorter-url/config"
 	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/ZureTz/shorter-url/internal/repo"
 )
@@ -29,13 +30,13 @@ type URLService struct {
 }
 
 // NewURLService creates a new instance of URLService with the provided dependencies
-func NewURLService(db* sql.DB, cacher Cacher, codeGenerator CodeGenerator, defaultDuration time.Duration, baseURL string) *URLService {
+func NewURLService(db *sql.DB, cacher Cacher, codeGenerator CodeGenerator, conf config.ServiceConfig) *URLService {
 	return &URLService{
 		querier:         repo.New(db),
 		cacher:          cacher,
 		codeGenerator:   codeGenerator,
-		defaultDuration: defaultDuration,
-		baseURL:         baseURL,
+		defaultDuration: conf.DefaultDuration,
+		baseURL:         conf.BaseURL,
 	}
 }
 
@@ -127,6 +128,11 @@ func (s *URLService) GetLongURLInfo(ctx context.Context, shortCode string) (stri
 
 	// Finally, return the original URL
 	return originalURLFromDB.OriginalUrl, nil
+}
+
+// Delete outdated URLs from the database
+func (s *URLService) DeleteOutdatedURLs(ctx context.Context) error {
+	return s.querier.DeleteOutdatedURLs(ctx)
 }
 
 // Generate the short code, search for availability

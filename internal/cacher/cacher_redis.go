@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/ZureTz/shorter-url/config"
 	"github.com/ZureTz/shorter-url/internal/repo"
 	"github.com/redis/go-redis/v9"
 )
@@ -15,11 +16,24 @@ type RedisCacher struct {
 }
 
 // NewRedisCacher creates a new Cacher instance with the provided Redis client
-func NewRedisCacher(client *redis.Client, averageExpiration time.Duration) *RedisCacher {
+func NewRedisCacher(c config.CacherConfig) (*RedisCacher, error) {
+	// Create a new Redis client with the provided configuration
+	client := redis.NewClient(&redis.Options{
+		Addr:     c.CacherURL,
+		Password: c.Password, // No password if not set
+		DB:       c.DB,       // Use the specified DB
+	})
+
+	// Check if the Redis client is able to connect
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		return nil, err
+	}
+
+	// If successful, return the RedisCacher instance
 	return &RedisCacher{
 		client:            client,
-		averageExpiration: averageExpiration,
-	}
+		averageExpiration: c.AverageExpiration,
+	}, nil
 }
 
 // StoreURLToCache stores the URL information in the cache using redis
@@ -31,9 +45,11 @@ func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) err
 	}
 
 	// Generate an expiration time based on the average expiration duration
-	expirationTime := time.Duration(time.Now().UnixNano() % int64(c.averageExpiration))
+	expirationDuration := time.Duration(time.Now().UnixNano() % int64(c.averageExpiration))
+	// Find the minimum between the default expiration duration and the expiration duration in urlInfo
+	expirationDuration = min(expirationDuration, time.Until(urlInfo.ExpiredAt))
 	// Set the URL information in Redis with an expiration time
-	err = c.client.Set(ctx, urlInfo.ShortCode, stringifiedURLInfo, expirationTime).Err()
+	err = c.client.Set(ctx, urlInfo.ShortCode, stringifiedURLInfo, expirationDuration).Err()
 	if err != nil {
 		return err
 	}
@@ -64,4 +80,12 @@ func (c *RedisCacher) GetURLFromCache(ctx context.Context, shortCode string) (*r
 
 	// Return the URL information
 	return &urlInfo, nil
+}
+
+// Close closes the Redis client connection
+func (c *RedisCacher) Close() error {
+	if c.client == nil {
+		return nil
+	}
+	return c.client.Close()
 }

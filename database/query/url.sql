@@ -28,3 +28,10 @@ where
   and 
   expired_at > current_timestamp
 ;
+
+-- name: DeleteOutdatedURLs :exec
+delete from
+  urls
+where
+  expired_at <= current_timestamp
+;
