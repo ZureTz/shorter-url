@@ -1,0 +1,29 @@
+[db]
+driver_name = "pgx"
+database_host = "localhost"
+database_port = 5432
+database_name = "url_db"
+username = "user"
+password = "pass"
+ssl_mode = "disable"
+max_idle_connections = 10
+max_open_connections = 100
+
+[cacher]
+cacher_url = "localhost:6379"
+password = ""
+db = 0
+average_expiration = 3600
+
+[code_generator]
+short_code_length = 7
+
+[service]
+base_url = "http://localhost:8080"
+default_expiration = 86400
+outdated_url_cleanup_interval = 3600
+
+[server]
+port = 8080
+write_timeout = 30
+read_timeout = 30

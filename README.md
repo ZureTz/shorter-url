@@ -57,3 +57,17 @@ migrate -path database/migrate \
         -database "postgres://user:pass@localhost:5432/url_db?sslmode=disable" \
         drop -f
 ```
+
+## Copy example config file
+```bash
+cp config.example.toml config.toml
+```
+
+And edit the `config.toml` file with your database and redis credentials.
+
+## Run the application
+
+```bash
+go run main.go
+```
+

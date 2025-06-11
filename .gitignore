@@ -34,3 +34,6 @@ go.work.sum
 # MacOS
 .DS_Store
 
+# Configuration files 
+config.toml
+
