@@ -52,7 +52,7 @@ type CodeGeneratorConfig struct {
 }
 
 type ServiceConfig struct {
-	BaseURL                    string        `mapstructure:"base_url"`
+	FrontendBaseURL            string        `mapstructure:"frontend_base_url"`
 	DefaultExpiration          time.Duration `mapstructure:"default_expiration"`
 	OutdatedURLCleanupInterval time.Duration `mapstructure:"outdated_url_cleanup_interval"`
 }

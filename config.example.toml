@@ -19,8 +19,8 @@ average_expiration = "1h"
 short_code_length = 7
 
 [service]
-base_url = "http://localhost:8080"
-default_expiration = "5h"
+frontend_base_url = "http://localhost:3000"
+default_expiration = "720h"
 outdated_url_cleanup_interval = "2h"
 
 [server]

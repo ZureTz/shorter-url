@@ -26,7 +26,7 @@ type URLService struct {
 	cacher            Cacher
 	codeGenerator     CodeGenerator
 	defaultExpiration time.Duration
-	baseURL           string
+	frontendBaseURL   string
 }
 
 // NewURLService creates a new instance of URLService with the provided dependencies
@@ -36,7 +36,7 @@ func NewURLService(db *sql.DB, cacher Cacher, codeGenerator CodeGenerator, conf 
 		cacher:            cacher,
 		codeGenerator:     codeGenerator,
 		defaultExpiration: conf.DefaultExpiration,
-		baseURL:           conf.BaseURL,
+		frontendBaseURL:   conf.FrontendBaseURL,
 	}
 }
 
@@ -96,7 +96,7 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 	}
 
 	return &model.CreateShortURLResponse{
-		ShortURL:  s.baseURL + "/" + urlInfo.ShortCode,
+		ShortURL:  s.frontendBaseURL + "/" + urlInfo.ShortCode,
 		ExpiredAt: urlInfo.ExpiredAt,
 	}, nil
 }
