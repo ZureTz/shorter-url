@@ -3,6 +3,7 @@ package cacher
 import (
 	"context"
 	"encoding/json"
+	// "log"
 	"time"
 
 	"github.com/ZureTz/shorter-url/config"
@@ -45,9 +46,14 @@ func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) err
 	}
 
 	// Generate an expiration time based on the average expiration duration
-	expirationDuration := time.Duration(time.Now().UnixNano() % int64(c.averageExpiration))
+	expirationDuration := (c.averageExpiration * 3 / 4) + (time.Duration(time.Now().UnixNano()%int64(c.averageExpiration)) / 2)
 	// Find the minimum between the default expiration duration and the expiration duration in urlInfo
 	expirationDuration = min(expirationDuration, time.Until(urlInfo.ExpiredAt))
+
+	// Log the expiration duration for debugging purposes
+	// log.Println("Average expiration duration: ", c.averageExpiration)
+	// log.Println("Setting expiration duration for URL", urlInfo.ShortCode, ":", expirationDuration)
+	
 	// Set the URL information in Redis with an expiration time
 	err = c.client.Set(ctx, urlInfo.ShortCode, stringifiedURLInfo, expirationDuration).Err()
 	if err != nil {
