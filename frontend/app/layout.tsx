@@ -1,6 +1,8 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LayoutContent } from "@/components/layout-content";
+import { AuthProvider } from "@/contexts/auth-context";
+import { ProtectedRoute } from "@/components/protected-route";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -19,18 +21,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Sidebar with trigger and main content */}
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="flex-1 w-full flex flex-col h-screen overflow-hidden">
-              <div className="sticky top-0 z-50 bg-background border-b p-2">
-                <SidebarTrigger />
-              </div>
-              <div className="flex-1 overflow-auto">
-                {children}
-              </div>
-            </main>
-          </SidebarProvider>
+          <AuthProvider>
+            <ProtectedRoute>
+              <LayoutContent>{children}</LayoutContent>
+              <Toaster />
+            </ProtectedRoute>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

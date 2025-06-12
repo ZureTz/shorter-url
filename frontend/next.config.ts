@@ -12,10 +12,6 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
-      {
-        source: "/:shortCode",
-        destination: `${backendUrl}/:shortCode`,
-      },
     ];
   },
   // This is required to support PostHog trailing slash API requests
