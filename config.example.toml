@@ -18,10 +18,17 @@ average_expiration = "1h"
 [code_generator]
 short_code_length = 7
 
-[service]
+[url_service]
 short_link_base_url = "http://localhost:8080"
 default_expiration = "720h"
 outdated_url_cleanup_interval = "2h"
+
+[user_service]
+email_code_expiration = "5m"
+
+[auth]
+secret_key = "your_secret_key"
+expiration = "24h"
 
 [server]
 port = 8080

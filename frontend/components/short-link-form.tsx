@@ -205,7 +205,7 @@ export function ShortLinkForm() {
                 有效期至：
               </span>
               <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                {new Date(shortLinkResult.expiredAt).toLocaleString("zh-CN")}
+                {new Date(shortLinkResult.expiredAt).toLocaleString(navigator.language)}
               </span>
             </div>
           </div>

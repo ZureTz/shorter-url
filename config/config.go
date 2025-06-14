@@ -51,10 +51,14 @@ type CodeGeneratorConfig struct {
 	ShortCodeLength int `mapstructure:"short_code_length"`
 }
 
-type ServiceConfig struct {
+type URLServiceConfig struct {
 	ShortLinkBaseURL           string        `mapstructure:"short_link_base_url"`
 	DefaultExpiration          time.Duration `mapstructure:"default_expiration"`
 	OutdatedURLCleanupInterval time.Duration `mapstructure:"outdated_url_cleanup_interval"`
+}
+
+type UserServiceConfig struct {
+	EmailCodeExpiration time.Duration `mapstructure:"email_code_expiration"`
 }
 
 type ServerConfig struct {
@@ -64,12 +68,19 @@ type ServerConfig struct {
 	GracefulShutdownTimeout time.Duration `mapstructure:"graceful_shutdown_timeout"`
 }
 
+type AuthConfig struct {
+	SecretKey  string        `mapstructure:"secret_key"`
+	Expiration time.Duration `mapstructure:"expiration"`
+}
+
 type Config struct {
-	DB      DBConfig            `mapstructure:"db"`
-	Cacher  CacherConfig        `mapstructure:"cacher"`
-	CodeGen CodeGeneratorConfig `mapstructure:"code_generator"`
-	Service ServiceConfig       `mapstructure:"service"`
-	Server  ServerConfig        `mapstructure:"server"`
+	DB          DBConfig            `mapstructure:"db"`
+	Cacher      CacherConfig        `mapstructure:"cacher"`
+	CodeGen     CodeGeneratorConfig `mapstructure:"code_generator"`
+	URLService  URLServiceConfig    `mapstructure:"url_service"`
+	UserService UserServiceConfig   `mapstructure:"user_service"`
+	Auth        AuthConfig          `mapstructure:"auth"`
+	Server      ServerConfig        `mapstructure:"server"`
 }
 
 // LoadConfig loads the configuration from a file using viper

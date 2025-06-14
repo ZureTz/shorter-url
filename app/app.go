@@ -14,20 +14,28 @@ import (
 	"github.com/ZureTz/shorter-url/database"
 	"github.com/ZureTz/shorter-url/internal/api"
 	"github.com/ZureTz/shorter-url/internal/cacher"
+	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/ZureTz/shorter-url/internal/service"
 	"github.com/ZureTz/shorter-url/pkg/shortcode"
 	"github.com/ZureTz/shorter-url/pkg/validator"
+	echoJWT "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type App struct {
-	e             *echo.Echo
-	db            *sql.DB
-	cacher        *cacher.RedisCacher
-	codeGenerator *shortcode.ShortCodeGenerator
+	e      *echo.Echo
+	db     *sql.DB
+	cacher *cacher.RedisCacher
+
+	// For generating and handling URLs
 	urlHandler    *api.URLHandler
 	urlService    *service.URLService
+	codeGenerator *shortcode.ShortCodeGenerator
+
+	// For user login and registration
+	userHandler    *api.UserHandler
+	userService    *service.UserService
 
 	conf *config.Config
 }
@@ -62,11 +70,15 @@ func (a *App) Init(filePath string) error {
 		a.db,
 		a.cacher,
 		a.codeGenerator,
-		conf.Service,
+		conf.URLService,
 	)
 
 	// Initialize URL handler
 	a.urlHandler = api.NewURLHandler(a.urlService)
+
+	// Initialize user service and handler
+	// a.userService = service.NewUserService(a.db, conf.UserService)
+	// a.userHandler = api.NewUserHandler(a.userService)
 
 	// Initialize Echo web framework
 	e := echo.New()
@@ -80,12 +92,26 @@ func (a *App) Init(filePath string) error {
 	e.Use(middleware.Recover())
 
 	// Add request validation middleware
-	e.Validator = validator.NewURLValidator()
+	e.Validator = validator.NewValidator()
 
 	// Register routes
-	e.POST("/api/url", a.urlHandler.CreateShortURL)
 	e.GET("/:short_code", a.urlHandler.RedirectToOriginalURL)
-	
+
+	r := e.Group("/api")
+	// Add JWT middleware for protected routes
+	config := echoJWT.Config{
+		NewClaimsFunc: model.NewCustomClaims,
+		SigningKey:    []byte(conf.Auth.SecretKey),
+	}
+	r.Use(echoJWT.WithConfig(config))
+
+	// For url controller
+	r.POST("/url", a.urlHandler.CreateShortURL)
+
+	// For user and authentication controller
+	// r.POST("/user/login", a.userHandler.LoginUser)
+	// r.POST("/user/register", a.userHandler.RegisterUser)
+
 	// Bind the URL handler to the Echo instance
 	a.e = e
 
@@ -105,13 +131,11 @@ func (a *App) Run() {
 }
 
 func (a *App) StartServer() {
-	if err := a.e.Start(fmt.Sprintf(":%d", a.conf.Server.Port)); err != nil {
-		log.Println(err)
-	}
+	a.e.Logger.Fatal(a.e.Start(fmt.Sprintf(":%d", a.conf.Server.Port)))
 }
 
 func (a *App) cleanUp() {
-	ticker := time.NewTicker(a.conf.Service.OutdatedURLCleanupInterval)
+	ticker := time.NewTicker(a.conf.URLService.OutdatedURLCleanupInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {

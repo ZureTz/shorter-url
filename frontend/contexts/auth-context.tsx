@@ -3,9 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
-  id: string;
+  uuid: string;
   username: string;
-  email?: string;
+  email: string;
 }
 
 interface AuthContextType {
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 暂时使用模拟登录逻辑
       if (username === "admin" && password === "password") {
         const mockUser: User = {
-          id: "1",
+          uuid: "1",
           username: username,
           email: `${username}@example.com`,
         };

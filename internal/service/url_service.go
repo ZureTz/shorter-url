@@ -30,7 +30,7 @@ type URLService struct {
 }
 
 // NewURLService creates a new instance of URLService with the provided dependencies
-func NewURLService(db *sql.DB, cacher Cacher, codeGenerator CodeGenerator, conf config.ServiceConfig) *URLService {
+func NewURLService(db *sql.DB, cacher Cacher, codeGenerator CodeGenerator, conf config.URLServiceConfig) *URLService {
 	return &URLService{
 		querier:           repo.New(db),
 		cacher:            cacher,

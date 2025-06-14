@@ -8,6 +8,13 @@
     }
   ],
   "settings": {
-    "cSpell.words": ["labstack", "alphanum", "sqlc", "sslmode"]
+    "cSpell.words": [
+      "alphanum",
+      "eqfield",
+      "labstack",
+      "sonner",
+      "sqlc",
+      "sslmode"
+    ]
   }
 }

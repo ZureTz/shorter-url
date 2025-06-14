@@ -4,7 +4,9 @@ go 1.24.3
 
 require (
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.7.5
+	github.com/labstack/echo-jwt/v4 v4.3.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/redis/go-redis/v9 v9.10.0
 	github.com/spf13/viper v1.20.1

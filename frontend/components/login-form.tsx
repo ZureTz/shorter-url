@@ -19,29 +19,18 @@ import {
 import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
-  usernameOrEmail: z
+  username: z
     .string()
-    .min(1, "用户名或邮箱不能为空")
-    .min(3, "用户名或邮箱至少需要3个字符")
-    .max(50, "用户名或邮箱不能超过50个字符")
-    .refine(
-      (val) => {
-        // 如果包含@符号，验证邮箱格式
-        if (val.includes("@")) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-        }
-        // 否则验证用户名格式（字母、数字、下划线）
-        return /^[a-zA-Z0-9_]+$/.test(val);
-      },
-      {
-        message: "请输入有效的用户名（字母、数字、下划线）或邮箱地址",
-      }
-    ),
+    .min(1, "用户名不能为空")
+    .min(3, "用户名至少需要3个字符")
+    .max(20, "用户名不能超过20个字符")
+    .regex(/^[a-zA-Z0-9_]+$/, "用户名只能包含字母、数字和下划线"),
   password: z
     .string()
     .min(1, "密码不能为空")
     .min(6, "密码至少需要6个字符")
-    .max(50, "密码不能超过50个字符"),
+    .max(50, "密码不能超过50个字符")
+    .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, "密码只能包含字母、数字、下划线和特殊字符"),
 });
 
 export function LoginForm() {
@@ -51,7 +40,7 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      usernameOrEmail: "",
+      username: "",
       password: "",
     },
   });
@@ -60,7 +49,7 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log("提交的登录数据:", values);
-      const success = await login(values.usernameOrEmail, values.password);
+      const success = await login(values.username, values.password);
       if (success) {
         toast.success("登录成功！", {
           description: "正在跳转到主页...",
@@ -85,17 +74,17 @@ export function LoginForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="usernameOrEmail"
+            name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>用户名或邮箱</FormLabel>
+                <FormLabel>用户名</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="请输入用户名或邮箱地址"
+                    placeholder="请输入用户名"
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>请输入您的用户名或邮箱地址</FormDescription>
+                <FormDescription>请输入您的用户名</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -120,8 +109,8 @@ export function LoginForm() {
             )}
           />
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
@@ -132,7 +121,7 @@ export function LoginForm() {
 
       <div className="text-sm text-gray-600 dark:text-gray-300 text-center space-y-1">
         <p className="font-medium">测试账号信息：</p>
-        <p>用户名: admin 或 邮箱: admin@example.com</p>
+        <p>用户名: admin</p>
         <p>密码: password</p>
       </div>
     </div>
