@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
-  uuid: string;
+  user_id: number;
   username: string;
   email: string;
 }
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 暂时使用模拟登录逻辑
       if (username === "admin" && password === "password") {
         const mockUser: User = {
-          uuid: "1",
+          user_id: 1,
           username: username,
           email: `${username}@example.com`,
         };

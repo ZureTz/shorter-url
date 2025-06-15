@@ -16,3 +16,12 @@ type Url struct {
 	CreatedAt   time.Time `json:"created_at"`
 	ExpiredAt   time.Time `json:"expired_at"`
 }
+
+type User struct {
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
+	Username     string    `json:"username"`
+	PasswordHash string    `json:"password_hash"`
+	Email        string    `json:"email"`
+	CreatedAt    time.Time `json:"created_at"`
+}

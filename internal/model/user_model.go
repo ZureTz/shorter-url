@@ -6,7 +6,7 @@ import (
 )
 
 type JwtCustomClaims struct {
-	Username string `json:"username"`
+	UserID int64 `json:"uid"`
 	jwt.RegisteredClaims
 }
 
@@ -20,7 +20,7 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	UUID     string `json:"uuid"`
+	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Token    string `json:"token"`
@@ -32,4 +32,8 @@ type RegisterRequest struct {
 	ConfirmedPassword string `json:"confirmed_password" validate:"required,eqfield=Password"`
 	Email             string `json:"email" validate:"required,email"`
 	EmailCode         string `json:"email_code" validate:"required,len=6,numeric"`
+}
+
+type GetEmailCodeRequest struct {
+	Email string `json:"email" validate:"required,email"`
 }

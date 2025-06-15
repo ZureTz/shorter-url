@@ -9,9 +9,13 @@ import (
 )
 
 type Querier interface {
+	CreateNewUser(ctx context.Context, arg CreateNewUserParams) error
 	CreateURL(ctx context.Context, arg CreateURLParams) (Url, error)
 	DeleteOutdatedURLs(ctx context.Context) error
 	GetURLByShortCode(ctx context.Context, shortCode string) (Url, error)
+	GetUserInfoFromUserID(ctx context.Context, userID int64) (User, error)
+	GetUserInfoFromUsername(ctx context.Context, username string) (User, error)
+	IsNewUserAvailable(ctx context.Context, arg IsNewUserAvailableParams) (bool, error)
 	IsShortCodeAvailable(ctx context.Context, shortCode string) (bool, error)
 }
 

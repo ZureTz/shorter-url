@@ -35,3 +35,4 @@ delete from
 where
   expired_at <= current_timestamp
 ;
+

@@ -11,7 +11,7 @@ import (
 type UserService interface {
 	UserLogin(ctx context.Context, req model.LoginRequest) (*model.LoginResponse, error)
 	UserRegister(ctx context.Context, req model.RegisterRequest) error
-	GetEmailCode(ctx context.Context, email string) error
+	GetEmailCode(ctx context.Context, req model.GetEmailCodeRequest) error
 }
 
 type UserHandler struct {
@@ -37,10 +37,11 @@ func (h *UserHandler) UserLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Call the user service to log in
+	// Call the user service to log in (Check if user exists and password matches)
 	resp, err := h.userService.UserLogin(c.Request().Context(), req)
+	// User does not exist or password is incorrect or any other error
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
 	// Successfully logged in, return the user information (UUID, username, email, and token)
@@ -62,7 +63,7 @@ func (h *UserHandler) UserRegister(c echo.Context) error {
 
 	// Call the user service to register
 	if err := h.userService.UserRegister(c.Request().Context(), req); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
 	// Successfully registered, return a success message
@@ -71,22 +72,22 @@ func (h *UserHandler) UserRegister(c echo.Context) error {
 	})
 }
 
-// GET /api/user/email-code
+// POST /api/user/email-code
 func (h *UserHandler) GetEmailCode(c echo.Context) error {
-	// Extract email from the query parameters
-	email := c.QueryParam("email")
-	if email == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "email is required")
+	// Extract email from request
+	var req model.GetEmailCodeRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Call the user service to get the email code
-	err := h.userService.GetEmailCode(c.Request().Context(), email)
+	err := h.userService.GetEmailCode(c.Request().Context(), req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	// Return the email code
-	return c.JSON(http.StatusOK, map[string]string{
+	// Return the email code status
+	return c.JSON(http.StatusCreated, map[string]string{
 		"message": "Email code sent successfully",
 	})
 }

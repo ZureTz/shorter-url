@@ -41,10 +41,14 @@ func (c *DBConfig) DataSourceName() (string, error) {
 }
 
 type CacherConfig struct {
-	CacherURL         string        `mapstructure:"cacher_url"`
-	Password          string        `mapstructure:"password"`
-	DB                int           `mapstructure:"db"`
-	AverageExpiration time.Duration `mapstructure:"average_expiration"`
+	CacherURL            string        `mapstructure:"cacher_url"`
+	Password             string        `mapstructure:"password"`
+	DB                   int           `mapstructure:"db"`
+	// URL caching related
+	URLAverageExpiration time.Duration `mapstructure:"url_average_expiration"`
+
+	// User caching related
+	EmailCodeExpiration time.Duration `mapstructure:"email_code_expiration"`
 }
 
 type CodeGeneratorConfig struct {
@@ -58,7 +62,8 @@ type URLServiceConfig struct {
 }
 
 type UserServiceConfig struct {
-	EmailCodeExpiration time.Duration `mapstructure:"email_code_expiration"`
+	CurrentNodeNumber int `mapstructure:"current_node_number"`
+	PasswordHashCost  int `mapstructure:"password_hash_cost"`
 }
 
 type ServerConfig struct {
@@ -69,8 +74,8 @@ type ServerConfig struct {
 }
 
 type AuthConfig struct {
-	SecretKey  string        `mapstructure:"secret_key"`
-	Expiration time.Duration `mapstructure:"expiration"`
+	SecretKey     string        `mapstructure:"secret_key"`
+	JWTExpiration time.Duration `mapstructure:"jwt_expiration"`
 }
 
 type Config struct {

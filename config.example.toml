@@ -13,7 +13,8 @@ max_open_conns = 100
 cacher_url = "localhost:6379"
 password = ""
 db = 0
-average_expiration = "1h"
+url_average_expiration = "1h"
+email_code_expiration = "5m"
 
 [code_generator]
 short_code_length = 7
@@ -24,11 +25,12 @@ default_expiration = "720h"
 outdated_url_cleanup_interval = "2h"
 
 [user_service]
-email_code_expiration = "5m"
+current_node_number = 1
+password_hash_cost = 12
 
 [auth]
 secret_key = "your_secret_key"
-expiration = "24h"
+jwt_expiration = "24h"
 
 [server]
 port = 8080

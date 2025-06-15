@@ -16,11 +16,6 @@ type CodeGenerator interface {
 	GenerateShortCode() string
 }
 
-type Cacher interface {
-	StoreURLToCache(ctx context.Context, urlInfo repo.Url) error
-	GetURLFromCache(ctx context.Context, shortCode string) (*repo.Url, error)
-}
-
 type URLService struct {
 	querier           repo.Querier
 	cacher            Cacher

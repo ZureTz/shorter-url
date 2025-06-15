@@ -77,7 +77,7 @@ func (a *App) Init(filePath string) error {
 	a.urlHandler = api.NewURLHandler(a.urlService)
 
 	// Initialize user service and handler
-	// a.userService = service.NewUserService(a.db, conf.UserService)
+	// a.userService = service.NewUserService(a.db, ...)
 	// a.userHandler = api.NewUserHandler(a.userService)
 
 	// Initialize Echo web framework
@@ -111,6 +111,7 @@ func (a *App) Init(filePath string) error {
 	// For user and authentication controller
 	// r.POST("/user/login", a.userHandler.LoginUser)
 	// r.POST("/user/register", a.userHandler.RegisterUser)
+	// r.POST("/user/email_code", a.userHandler.GetEmailCode)
 
 	// Bind the URL handler to the Echo instance
 	a.e = e
