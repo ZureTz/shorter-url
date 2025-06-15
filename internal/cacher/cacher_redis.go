@@ -32,6 +32,7 @@ func NewRedisCacher(c config.CacherConfig) (*RedisCacher, error) {
 	return &RedisCacher{
 		client:               client,
 		uRLAverageExpiration: c.URLAverageExpiration,
+		emailCodeExpiration:  c.EmailCodeExpiration,
 	}, nil
 }
 

@@ -1,18 +1,6 @@
 package model
 
-import (
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
-)
-
-type JwtCustomClaims struct {
-	UserID int64 `json:"uid"`
-	jwt.RegisteredClaims
-}
-
-func NewCustomClaims(e echo.Context) jwt.Claims {
-	return new(JwtCustomClaims)
-}
+import "time"
 
 type LoginRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=20,custom_username_validator"`
@@ -20,10 +8,11 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Token    string `json:"token"`
+	UserID          int64         `json:"user_id"`
+	Username        string        `json:"username"`
+	Email           string        `json:"email"`
+	Token           string        `json:"token"`
+	TokenExpiration time.Duration `json:"token_expiration"` 
 }
 
 type RegisterRequest struct {

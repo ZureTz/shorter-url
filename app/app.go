@@ -14,10 +14,12 @@ import (
 	"github.com/ZureTz/shorter-url/database"
 	"github.com/ZureTz/shorter-url/internal/api"
 	"github.com/ZureTz/shorter-url/internal/cacher"
-	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/ZureTz/shorter-url/internal/service"
+	"github.com/ZureTz/shorter-url/pkg/jwt_gen"
+	"github.com/ZureTz/shorter-url/pkg/password"
 	"github.com/ZureTz/shorter-url/pkg/shortcode"
 	"github.com/ZureTz/shorter-url/pkg/validator"
+	"github.com/golang-jwt/jwt/v5"
 	echoJWT "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -34,8 +36,8 @@ type App struct {
 	codeGenerator *shortcode.ShortCodeGenerator
 
 	// For user login and registration
-	userHandler    *api.UserHandler
-	userService    *service.UserService
+	userHandler *api.UserHandler
+	userService *service.UserService
 
 	conf *config.Config
 }
@@ -76,9 +78,16 @@ func (a *App) Init(filePath string) error {
 	// Initialize URL handler
 	a.urlHandler = api.NewURLHandler(a.urlService)
 
+	// Initialize JWT generator and password manager
+	jwtGen := jwt_gen.NewJWTGenerator(conf.Auth)
+	pwdManager, err := password.NewPasswordManager(conf.PwdManager)
+	if err != nil {
+		return err
+	}
+
 	// Initialize user service and handler
-	// a.userService = service.NewUserService(a.db, ...)
-	// a.userHandler = api.NewUserHandler(a.userService)
+	a.userService = service.NewUserService(a.db, cacher, jwtGen, pwdManager)
+	a.userHandler = api.NewUserHandler(a.userService)
 
 	// Initialize Echo web framework
 	e := echo.New()
@@ -97,21 +106,24 @@ func (a *App) Init(filePath string) error {
 	// Register routes
 	e.GET("/:short_code", a.urlHandler.RedirectToOriginalURL)
 
-	r := e.Group("/api")
+	// For user and authentication controller
+	e.POST("/api/login", a.userHandler.UserLogin)
+	e.POST("/api/register", a.userHandler.UserRegister)
+	e.POST("/api/email_code", a.userHandler.GetEmailCode)
+
+	r := e.Group("/api/user")
 	// Add JWT middleware for protected routes
 	config := echoJWT.Config{
-		NewClaimsFunc: model.NewCustomClaims,
-		SigningKey:    []byte(conf.Auth.SecretKey),
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(jwt_gen.JwtCustomClaims)
+		},
+		SigningKey:  []byte(conf.Auth.SecretKey),
+		TokenLookup: "cookie:token", // Look for JWT in the cookie named "token"
 	}
 	r.Use(echoJWT.WithConfig(config))
 
 	// For url controller
 	r.POST("/url", a.urlHandler.CreateShortURL)
-
-	// For user and authentication controller
-	// r.POST("/user/login", a.userHandler.LoginUser)
-	// r.POST("/user/register", a.userHandler.RegisterUser)
-	// r.POST("/user/email_code", a.userHandler.GetEmailCode)
 
 	// Bind the URL handler to the Echo instance
 	a.e = e

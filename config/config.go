@@ -41,9 +41,9 @@ func (c *DBConfig) DataSourceName() (string, error) {
 }
 
 type CacherConfig struct {
-	CacherURL            string        `mapstructure:"cacher_url"`
-	Password             string        `mapstructure:"password"`
-	DB                   int           `mapstructure:"db"`
+	CacherURL string `mapstructure:"cacher_url"`
+	Password  string `mapstructure:"password"`
+	DB        int    `mapstructure:"db"`
 	// URL caching related
 	URLAverageExpiration time.Duration `mapstructure:"url_average_expiration"`
 
@@ -61,7 +61,7 @@ type URLServiceConfig struct {
 	OutdatedURLCleanupInterval time.Duration `mapstructure:"outdated_url_cleanup_interval"`
 }
 
-type UserServiceConfig struct {
+type PasswordManagerConfig struct {
 	CurrentNodeNumber int `mapstructure:"current_node_number"`
 	PasswordHashCost  int `mapstructure:"password_hash_cost"`
 }
@@ -79,13 +79,13 @@ type AuthConfig struct {
 }
 
 type Config struct {
-	DB          DBConfig            `mapstructure:"db"`
-	Cacher      CacherConfig        `mapstructure:"cacher"`
-	CodeGen     CodeGeneratorConfig `mapstructure:"code_generator"`
-	URLService  URLServiceConfig    `mapstructure:"url_service"`
-	UserService UserServiceConfig   `mapstructure:"user_service"`
-	Auth        AuthConfig          `mapstructure:"auth"`
-	Server      ServerConfig        `mapstructure:"server"`
+	DB         DBConfig              `mapstructure:"db"`
+	Cacher     CacherConfig          `mapstructure:"cacher"`
+	CodeGen    CodeGeneratorConfig   `mapstructure:"code_generator"`
+	PwdManager PasswordManagerConfig `mapstructure:"password_manager"`
+	Auth       AuthConfig            `mapstructure:"auth"`
+	URLService URLServiceConfig      `mapstructure:"url_service"`
+	Server     ServerConfig          `mapstructure:"server"`
 }
 
 // LoadConfig loads the configuration from a file using viper

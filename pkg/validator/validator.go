@@ -3,7 +3,7 @@ package validator
 import (
 	"regexp"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 // URLValidator validates URLs

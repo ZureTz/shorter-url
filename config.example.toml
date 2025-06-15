@@ -19,18 +19,18 @@ email_code_expiration = "5m"
 [code_generator]
 short_code_length = 7
 
-[url_service]
-short_link_base_url = "http://localhost:8080"
-default_expiration = "720h"
-outdated_url_cleanup_interval = "2h"
-
-[user_service]
+[password_manager]
 current_node_number = 1
 password_hash_cost = 12
 
 [auth]
 secret_key = "your_secret_key"
 jwt_expiration = "24h"
+
+[url_service]
+short_link_base_url = "http://localhost:8080"
+default_expiration = "720h"
+outdated_url_cleanup_interval = "2h"
 
 [server]
 port = 8080

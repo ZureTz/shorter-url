@@ -25,7 +25,7 @@ func NewURLHandler(urlService URLService) *URLHandler {
 	}
 }
 
-// POST /api/url original_url, custom_code, duration -> short_url, expired_at
+// POST /api/user/url original_url, custom_code, duration -> short_url, expired_at
 func (h *URLHandler) CreateShortURL(c echo.Context) error {
 	// Extract parameters from the request
 	var req model.CreateShortURLRequest

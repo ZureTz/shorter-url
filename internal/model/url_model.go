@@ -4,7 +4,7 @@ import "time"
 
 type CreateShortURLRequest struct {
 	// The original URL to be shortened
-	OriginalURL string `json:"original_url" validate:"required,url"`
+	OriginalURL string `json:"original_url" validate:"required,http_url"`
 	// Custom code for the shortened URL, if provided
 	CustomCode string `json:"custom_code,omitempty" validate:"omitempty,alphanum,min=4,max=10"`
 	// Duration in hours for which the shortened URL will be valid

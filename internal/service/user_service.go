@@ -3,25 +3,40 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"fmt"
 	"math/big"
 	"time"
 
 	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/ZureTz/shorter-url/internal/repo"
-	"github.com/bwmarrin/snowflake"
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
-	querier repo.Querier
-	cacher  Cacher
+type JWTGenerator interface {
+	GenerateToken(userID int64) (string, error)
+	GetTokenExpiration() time.Duration
+}
 
-	secretKey        string
-	passwordHashCost int
-	snowflakeNode    *snowflake.Node
-	jwtExpiration    time.Duration
+type PasswordManager interface {
+	ValidatePassword(hash string, password string) error
+	GenerateHashedPassword(password string) (string, error)
+	GenerateUserID() int64
+}
+
+type UserService struct {
+	querier      repo.Querier
+	cacher       Cacher
+	jwtGenerator JWTGenerator
+	pwdManager   PasswordManager
+}
+
+func NewUserService(db *sql.DB, cacher Cacher, jwtGen JWTGenerator, pwdManager PasswordManager) *UserService {
+	return &UserService{
+		querier:      repo.New(db),
+		cacher:       cacher,
+		jwtGenerator: jwtGen,
+		pwdManager:   pwdManager,
+	}
 }
 
 // UserLogin handles user login requests
@@ -29,39 +44,27 @@ func (s *UserService) UserLogin(ctx context.Context, req model.LoginRequest) (*m
 	// Get user information from the database
 	userInfo, err := s.querier.GetUserInfoFromUsername(ctx, req.Username)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid username")
 	}
 
 	// Check if the password matches using bcrypt
-	err = bcrypt.CompareHashAndPassword([]byte(userInfo.PasswordHash), []byte(req.Password))
+	err = s.pwdManager.ValidatePassword(userInfo.PasswordHash, req.Password)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("your password is incorrect, please try again")
 	}
 
-	// User exists and password matches, generate a JWT token
-	claims := &model.JwtCustomClaims{
-		UserID: userInfo.UserID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.jwtExpiration)),
-		},
-	}
-
-	// Generate the JWT token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Get encoded signed token
-	tokenString, err := token.SignedString([]byte(s.secretKey))
+	tokenString, err := s.jwtGenerator.GenerateToken(userInfo.UserID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
 	// Create the response with user information and token
 	resp := &model.LoginResponse{
-		UserID:   userInfo.UserID,
-		Username: userInfo.Username,
-		Email:    userInfo.Email,
-		Token:    tokenString,
+		UserID:          userInfo.UserID,
+		Username:        userInfo.Username,
+		Email:           userInfo.Email,
+		Token:           tokenString,
+		TokenExpiration: s.jwtGenerator.GetTokenExpiration(),
 	}
 	return resp, nil
 }
@@ -97,19 +100,19 @@ func (s *UserService) UserRegister(ctx context.Context, req model.RegisterReques
 	}
 
 	// If available, hash the password using bcrypt
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), s.passwordHashCost)
+	hashedPassword, err := s.pwdManager.GenerateHashedPassword(req.Password)
 	if err != nil {
 		return err
 	}
 
 	// And then generate a new user ID using snowflake
-	userID := s.snowflakeNode.Generate().Int64()
+	userID := s.pwdManager.GenerateUserID()
 
 	// Create a new user in the database
 	newUserInfo := repo.CreateNewUserParams{
 		UserID:       userID,
 		Username:     req.Username,
-		PasswordHash: string(hashedPassword),
+		PasswordHash: hashedPassword,
 		Email:        req.Email,
 	}
 
