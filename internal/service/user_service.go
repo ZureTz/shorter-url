@@ -132,25 +132,56 @@ func (s *UserService) UserRegister(ctx context.Context, req model.RegisterReques
 }
 
 func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRequest) error {
-	// Generate a random 6-digit email code
-	emailCode := make([]byte, 6)
-	for i := range emailCode {
-		num, err := rand.Int(rand.Reader, big.NewInt(10))
-		if err != nil {
-			return fmt.Errorf("failed to generate email code: %w", err)
-		}
-		emailCode[i] = num.String()[0] // Convert to ASCII character
+	// Try to generate a unique email code, with a maximum of 10 attempts
+	emailCode, err := s.tryGenerateEmailCode(ctx, 10)
+	if err != nil {
+		return err
 	}
 
 	// Send the email code to the user's email address
-	s.mailer.SendEmail(req.Email, "Your Email Code", fmt.Sprintf("Your email code is: %s", string(emailCode)))
+	s.mailer.SendEmail(req.Email, "Your Email Code", fmt.Sprintf("Your email code is: %s", *emailCode))
 
 	// Store the email code in the cacher with an expiration time
-	err := s.cacher.StoreCodeAndEmail(ctx, string(emailCode), req.Email)
+	err = s.cacher.StoreCodeAndEmail(ctx, *emailCode, req.Email)
 	if err != nil {
 		return err
 	}
 
 	// Finally, return nil to indicate success
 	return nil
+}
+
+// tryGenerateEmailCode attempts to generate a unique 6-digit email code
+// If the code already exists, it will retry up to `tryCount` times
+// Returns the generated email code or an error if it fails after multiple attempts
+func (s *UserService) tryGenerateEmailCode(ctx context.Context, tryCount int) (*string, error) {
+	// Generate a random 6-digit email code
+	if tryCount == 0 {
+		return nil, fmt.Errorf("failed to generate email code after multiple attempts")
+	}
+
+	emailCode := make([]byte, 6)
+	for i := range emailCode {
+		num, err := rand.Int(rand.Reader, big.NewInt(10))
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate email code: %w", err)
+		}
+		// Convert the number to a byte and store it in the emailCode slice
+		emailCode[i] = '0' + byte(num.Int64())
+	}
+
+	// Check if the email code already exists in the cacher
+	existingEmail, err := s.cacher.GetEmailUsingCode(ctx, string(emailCode))
+	if err != nil {
+		return nil, fmt.Errorf("failed to check existing email code: %w", err)
+	}
+
+	// If the email code already exists, try generating a new one
+	if existingEmail != nil {
+		return s.tryGenerateEmailCode(ctx, tryCount-1)
+	}
+
+	// If the email code is unique, return it
+	emailCodeStr := string(emailCode)
+	return &emailCodeStr, nil
 }
