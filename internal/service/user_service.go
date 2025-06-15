@@ -127,17 +127,20 @@ func (s *UserService) UserRegister(ctx context.Context, req model.RegisterReques
 
 func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRequest) error {
 	// Generate a random 6-digit email code
-	maxCodeValue := big.NewInt(1000000) // 10^6
-	emailCode, err := rand.Int(rand.Reader, maxCodeValue)
-	if err != nil {
-		return err
+	emailCode := make([]byte, 6)
+	for i := range emailCode {
+		num, err := rand.Int(rand.Reader, big.NewInt(10))
+		if err != nil {
+			return fmt.Errorf("failed to generate email code: %w", err)
+		}
+		emailCode[i] = num.String()[0] // Convert to ASCII character
 	}
 
 	// Send the email code to the user's email address
 	// ...
 
 	// Store the email code in the cacher with an expiration time
-	err = s.cacher.StoreCodeAndEmail(ctx, emailCode.String(), req.Email)
+	err := s.cacher.StoreCodeAndEmail(ctx, string(emailCode), req.Email)
 	if err != nil {
 		return err
 	}

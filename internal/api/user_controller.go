@@ -50,7 +50,6 @@ func (h *UserHandler) UserLogin(c echo.Context) error {
 		Name:     "token",
 		Value:    resp.Token,
 		HttpOnly: true,
-		Path:     "/",
 		Expires:  time.Now().Add(resp.TokenExpiration),
 	})
 
