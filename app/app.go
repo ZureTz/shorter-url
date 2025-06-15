@@ -16,6 +16,7 @@ import (
 	"github.com/ZureTz/shorter-url/internal/cacher"
 	"github.com/ZureTz/shorter-url/internal/service"
 	"github.com/ZureTz/shorter-url/pkg/jwt_gen"
+	"github.com/ZureTz/shorter-url/pkg/mailer"
 	"github.com/ZureTz/shorter-url/pkg/password"
 	"github.com/ZureTz/shorter-url/pkg/shortcode"
 	"github.com/ZureTz/shorter-url/pkg/validator"
@@ -29,6 +30,7 @@ type App struct {
 	e      *echo.Echo
 	db     *sql.DB
 	cacher *cacher.RedisCacher
+	mailer *mailer.Mailer
 
 	// For generating and handling URLs
 	urlHandler    *api.URLHandler
@@ -85,8 +87,11 @@ func (a *App) Init(filePath string) error {
 		return err
 	}
 
+	// Initialize email sender
+	a.mailer = mailer.NewMailer(conf.Mailer)
+
 	// Initialize user service and handler
-	a.userService = service.NewUserService(a.db, cacher, jwtGen, pwdManager)
+	a.userService = service.NewUserService(a.db, cacher, jwtGen, pwdManager, a.mailer)
 	a.userHandler = api.NewUserHandler(a.userService)
 
 	// Initialize Echo web framework
@@ -139,6 +144,9 @@ func (a *App) Run() {
 	// Start the cleanup routine for outdated URLs
 	go a.cleanUp()
 
+	// Start the mailer daemon
+	go a.mailer.MailerDaemon()
+
 	// Handle graceful shutdown
 	a.StopServer()
 }
@@ -175,6 +183,9 @@ func (a *App) StopServer() {
 			log.Printf("Error closing cacher connection: %v", err)
 		}
 	}()
+
+	// Close channel to stop the mailer daemon
+	defer a.mailer.Stop()
 
 	// Wait for the server to gracefully shut down after finishing all requests
 	ctx, cancel := context.WithTimeout(context.Background(), a.conf.Server.GracefulShutdownTimeout)

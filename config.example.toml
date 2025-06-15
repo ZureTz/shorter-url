@@ -27,6 +27,13 @@ password_hash_cost = 12
 secret_key = "your_secret_key"
 jwt_expiration = "24h"
 
+[mailer]
+smtp_host = "smtp.example.com"
+smtp_port = 587
+username = "example_user"
+password = "example_pass"
+from_mail = "example@example.ocm"
+
 [url_service]
 short_link_base_url = "http://localhost:8080"
 default_expiration = "720h"

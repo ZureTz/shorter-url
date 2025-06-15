@@ -78,12 +78,21 @@ type AuthConfig struct {
 	JWTExpiration time.Duration `mapstructure:"jwt_expiration"`
 }
 
+type MailerConfig struct {
+	SMTPHost string `mapstructure:"smtp_host"`
+	SMTPPort int    `mapstructure:"smtp_port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	FromMail string `mapstructure:"from_mail"`
+}
+
 type Config struct {
 	DB         DBConfig              `mapstructure:"db"`
 	Cacher     CacherConfig          `mapstructure:"cacher"`
 	CodeGen    CodeGeneratorConfig   `mapstructure:"code_generator"`
 	PwdManager PasswordManagerConfig `mapstructure:"password_manager"`
 	Auth       AuthConfig            `mapstructure:"auth"`
+	Mailer     MailerConfig          `mapstructure:"mailer"`
 	URLService URLServiceConfig      `mapstructure:"url_service"`
 	Server     ServerConfig          `mapstructure:"server"`
 }

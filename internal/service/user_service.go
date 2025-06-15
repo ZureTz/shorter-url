@@ -23,19 +23,25 @@ type PasswordManager interface {
 	GenerateUserID() int64
 }
 
+type Mailer interface {
+	SendEmail(to string, subject string, body string)
+}
+
 type UserService struct {
 	querier      repo.Querier
 	cacher       Cacher
 	jwtGenerator JWTGenerator
 	pwdManager   PasswordManager
+	mailer       Mailer
 }
 
-func NewUserService(db *sql.DB, cacher Cacher, jwtGen JWTGenerator, pwdManager PasswordManager) *UserService {
+func NewUserService(db *sql.DB, cacher Cacher, jwtGen JWTGenerator, pwdManager PasswordManager, mailer Mailer) *UserService {
 	return &UserService{
 		querier:      repo.New(db),
 		cacher:       cacher,
 		jwtGenerator: jwtGen,
 		pwdManager:   pwdManager,
+		mailer:       mailer,
 	}
 }
 
@@ -137,7 +143,7 @@ func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRe
 	}
 
 	// Send the email code to the user's email address
-	// ...
+	s.mailer.SendEmail(req.Email, "Your Email Code", fmt.Sprintf("Your email code is: %s", string(emailCode)))
 
 	// Store the email code in the cacher with an expiration time
 	err := s.cacher.StoreCodeAndEmail(ctx, string(emailCode), req.Email)

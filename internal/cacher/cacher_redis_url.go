@@ -11,6 +11,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const urlKeyPrefix = "url:"
+
 // StoreURLToCache stores the URL information in the cache using redis
 func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) error {
 	// Stringify the URL information
@@ -29,7 +31,7 @@ func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) err
 	// log.Println("Setting expiration duration for URL", urlInfo.ShortCode, ":", expirationDuration)
 
 	// Set the URL information in Redis with an expiration time
-	err = c.client.Set(ctx, urlInfo.ShortCode, stringifiedURLInfo, expirationDuration).Err()
+	err = c.client.Set(ctx, urlKeyPrefix+urlInfo.ShortCode, stringifiedURLInfo, expirationDuration).Err()
 	if err != nil {
 		return err
 	}
@@ -41,7 +43,7 @@ func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) err
 // GetURLFromCache retrieves the URL information from the cache using redis
 func (c *RedisCacher) GetURLFromCache(ctx context.Context, shortCode string) (*repo.Url, error) {
 	// Get the URL information from Redis
-	stringifiedURLInfo, err := c.client.Get(ctx, shortCode).Bytes()
+	stringifiedURLInfo, err := c.client.Get(ctx, urlKeyPrefix+shortCode).Bytes()
 	// If the key does not exist, return nil
 	if err == redis.Nil {
 		return nil, nil
