@@ -16,11 +16,15 @@ type Mailer struct {
 
 func NewMailer(c config.MailerConfig) *Mailer {
 	dialer := gomail.NewDialer(c.SMTPHost, c.SMTPPort, c.Username, c.Password)
-	return &Mailer{
+	mailer := &Mailer{
 		dialer:      *dialer,
 		fromMail:    c.FromMail,
 		mailChannel: make(chan *gomail.Message, 100),
 	}
+	// Start the mailer daemon
+	go mailer.MailerDaemon()
+
+	return mailer
 }
 
 func (m *Mailer) MailerDaemon() {
@@ -36,11 +40,11 @@ func (m *Mailer) SendEmail(to string, subject string, body string) {
 	msg.SetHeader("From", m.fromMail)
 	msg.SetHeader("To", to)
 	msg.SetHeader("Subject", subject)
-	msg.SetBody("text/html", fmt.Sprintf("<h1>%s</h1><p>%s</p>", subject, body))
+	msg.SetBody("text/html", fmt.Sprintf("<p>%s</p>", body))
 
 	m.mailChannel <- msg // Send the message to the channel
 }
 
-func (m *Mailer) Stop() {
+func (m *Mailer) StopDaemon() {
 	close(m.mailChannel) // Close the channel to stop the daemon
 }

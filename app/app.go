@@ -144,9 +144,6 @@ func (a *App) Run() {
 	// Start the cleanup routine for outdated URLs
 	go a.cleanUp()
 
-	// Start the mailer daemon
-	go a.mailer.MailerDaemon()
-
 	// Handle graceful shutdown
 	a.StopServer()
 }
@@ -185,7 +182,7 @@ func (a *App) StopServer() {
 	}()
 
 	// Close channel to stop the mailer daemon
-	defer a.mailer.Stop()
+	defer a.mailer.StopDaemon()
 
 	// Wait for the server to gracefully shut down after finishing all requests
 	ctx, cancel := context.WithTimeout(context.Background(), a.conf.Server.GracefulShutdownTimeout)

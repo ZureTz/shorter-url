@@ -139,7 +139,7 @@ func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRe
 	}
 
 	// Send the email code to the user's email address
-	s.mailer.SendEmail(req.Email, "Your Email Code", fmt.Sprintf("Your email code is: %s", *emailCode))
+	s.mailer.SendEmail(req.Email, "Your Email verification code", fmt.Sprintf("Your email verification code is: %s", *emailCode))
 
 	// Store the email code in the cacher with an expiration time
 	err = s.cacher.StoreCodeAndEmail(ctx, *emailCode, req.Email)
