@@ -20,7 +20,7 @@ create table
   if not exists users (
     id bigserial primary key,
     -- Snowflake ID for unique user identification
-    user_id bigint not null unique,
+    user_id text not null unique,
     username text not null unique,
     password_hash text not null,
     email text not null unique,

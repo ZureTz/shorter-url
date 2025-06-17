@@ -13,14 +13,14 @@ import (
 )
 
 type JWTGenerator interface {
-	GenerateToken(userID int64) (string, error)
+	GenerateToken(userID string) (string, error)
 	GetTokenExpiration() time.Duration
 }
 
 type PasswordManager interface {
 	ValidatePassword(hash string, password string) error
 	GenerateHashedPassword(password string) (string, error)
-	GenerateUserID() int64
+	GenerateUserID() string
 }
 
 type Mailer interface {

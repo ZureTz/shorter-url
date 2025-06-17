@@ -19,7 +19,7 @@ type Url struct {
 
 type User struct {
 	ID           int64     `json:"id"`
-	UserID       int64     `json:"user_id"`
+	UserID       string    `json:"user_id"`
 	Username     string    `json:"username"`
 	PasswordHash string    `json:"password_hash"`
 	Email        string    `json:"email"`

@@ -8,11 +8,11 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	UserID          int64         `json:"user_id"`
+	UserID          string        `json:"user_id"`
 	Username        string        `json:"username"`
 	Email           string        `json:"email"`
 	Token           string        `json:"token"`
-	TokenExpiration time.Duration `json:"token_expiration"` 
+	TokenExpiration time.Duration `json:"token_expiration"`
 }
 
 type RegisterRequest struct {

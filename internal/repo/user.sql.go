@@ -21,7 +21,7 @@ insert into users (
 `
 
 type CreateNewUserParams struct {
-	UserID       int64  `json:"user_id"`
+	UserID       string `json:"user_id"`
 	Username     string `json:"username"`
 	PasswordHash string `json:"password_hash"`
 	Email        string `json:"email"`
@@ -35,29 +35,6 @@ func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) er
 		arg.Email,
 	)
 	return err
-}
-
-const getUserInfoFromUserID = `-- name: GetUserInfoFromUserID :one
-select
-  id, user_id, username, password_hash, email, created_at
-from
-  users
-where
-  user_id = $1
-`
-
-func (q *Queries) GetUserInfoFromUserID(ctx context.Context, userID int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserInfoFromUserID, userID)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Username,
-		&i.PasswordHash,
-		&i.Email,
-		&i.CreatedAt,
-	)
-	return i, err
 }
 
 const getUserInfoFromUsername = `-- name: GetUserInfoFromUsername :one

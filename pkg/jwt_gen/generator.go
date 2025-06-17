@@ -19,7 +19,7 @@ func NewJWTGenerator(c config.AuthConfig) *JWTGenerator {
 	}
 }
 
-func (g *JWTGenerator) GenerateToken(userID int64) (string, error) {
+func (g *JWTGenerator) GenerateToken(userID string) (string, error) {
 	// User exists and password matches, generate a JWT token
 	claims := &JwtCustomClaims{
 		UserID: userID,

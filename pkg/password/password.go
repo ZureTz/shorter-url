@@ -44,7 +44,7 @@ func (m *PasswordManager) GenerateHashedPassword(password string) (string, error
 	return string(hash), nil
 }
 
-func (m *PasswordManager) GenerateUserID() int64 {
+func (m *PasswordManager) GenerateUserID() string {
 	// Generate a unique user ID using snowflake
-	return m.snowflakeNode.Generate().Int64()
+	return m.snowflakeNode.Generate().String()
 }
