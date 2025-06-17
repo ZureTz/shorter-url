@@ -7,7 +7,7 @@ package repo
 
 import (
 	"context"
-	"time"
+	"database/sql"
 )
 
 const createURL = `-- name: CreateURL :one
@@ -22,10 +22,10 @@ insert into urls (
 `
 
 type CreateURLParams struct {
-	OriginalUrl string    `json:"original_url"`
-	ShortCode   string    `json:"short_code"`
-	IsCustom    bool      `json:"is_custom"`
-	ExpiredAt   time.Time `json:"expired_at"`
+	OriginalUrl string       `json:"original_url"`
+	ShortCode   string       `json:"short_code"`
+	IsCustom    bool         `json:"is_custom"`
+	ExpiredAt   sql.NullTime `json:"expired_at"`
 }
 
 func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, error) {
@@ -50,7 +50,9 @@ func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, erro
 const deleteOutdatedURLs = `-- name: DeleteOutdatedURLs :exec
 delete from
   urls
-where
+where 
+  expired_at is not null
+  and
   expired_at <= current_timestamp
 `
 
@@ -66,8 +68,11 @@ from
   urls 
 where 
   short_code = $1
-  and 
-  expired_at > current_timestamp
+  and (
+    expired_at is null
+    or
+    expired_at > current_timestamp
+  )
 `
 
 func (q *Queries) GetURLByShortCode(ctx context.Context, shortCode string) (Url, error) {

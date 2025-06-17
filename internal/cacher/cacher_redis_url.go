@@ -23,8 +23,10 @@ func (c *RedisCacher) StoreURLToCache(ctx context.Context, urlInfo repo.Url) err
 
 	// Generate an expiration time based on the average expiration duration
 	expirationDuration := (c.uRLAverageExpiration * 3 / 4) + (time.Duration(time.Now().UnixNano()%int64(c.uRLAverageExpiration)) / 2)
-	// Find the minimum between the default expiration duration and the expiration duration in urlInfo
-	expirationDuration = min(expirationDuration, time.Until(urlInfo.ExpiredAt))
+	// Find the minimum between the default expiration duration and the expiration duration in urlInfo (if it exists)
+	if urlInfo.ExpiredAt.Valid {
+		expirationDuration = min(expirationDuration, urlInfo.ExpiredAt.Time.Sub(time.Now().UTC()))
+	}
 
 	// Log the expiration duration for debugging purposes
 	// log.Println("Average expiration duration: ", c.averageExpiration)

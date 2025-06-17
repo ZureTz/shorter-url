@@ -73,7 +73,7 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 		// Never expire the URL if default duration is 0
 		if s.defaultExpiration == time.Duration(0) {
 			// Set to maximum time to never expire
-			expiredAt = time.Unix(1<<63-1, 0)
+			expiredAt = time.Time{}
 		} else { // Otherwise, use the default expiration
 			expiredAt = time.Now().UTC().Add(s.defaultExpiration)
 		}
@@ -84,7 +84,10 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 		OriginalUrl: req.OriginalURL,
 		ShortCode:   shortCode,
 		IsCustom:    isCustom,
-		ExpiredAt:   expiredAt,
+		ExpiredAt: sql.NullTime{
+			Time:  expiredAt,
+			Valid: !expiredAt.IsZero(),
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -97,7 +100,7 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 
 	return &model.CreateShortURLResponse{
 		ShortURL:  s.ShortLinkBaseURL + "/" + urlInfo.ShortCode,
-		ExpiredAt: urlInfo.ExpiredAt,
+		ExpiredAt: urlInfo.ExpiredAt.Time,
 	}, nil
 }
 

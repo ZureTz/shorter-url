@@ -6,7 +6,7 @@ create table
     short_code text not null unique,
     is_custom boolean not null default false,
     created_at timestamp not null default current_timestamp,
-    expired_at timestamp not null
+    expired_at timestamp
   );
 
 -- Note

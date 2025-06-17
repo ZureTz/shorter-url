@@ -25,14 +25,19 @@ from
   urls 
 where 
   short_code = $1
-  and 
-  expired_at > current_timestamp
+  and (
+    expired_at is null
+    or
+    expired_at > current_timestamp
+  )
 ;
 
 -- name: DeleteOutdatedURLs :exec
 delete from
   urls
-where
+where 
+  expired_at is not null
+  and
   expired_at <= current_timestamp
 ;
 
