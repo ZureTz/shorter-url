@@ -37,6 +37,8 @@ from_mail = "example@example.ocm"
 [url_service]
 short_link_base_url = "http://localhost:8080"
 default_expiration = "720h"
+# Set to 0 for no expiration
+# default_expiration = "0h"
 outdated_url_cleanup_interval = "2h"
 
 [server]

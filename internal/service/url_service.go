@@ -69,9 +69,14 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 	if req.Duration != nil {
 		// Calculate the expiration date (in hours)
 		expiredAt = time.Now().UTC().Add(time.Duration(*req.Duration) * time.Hour)
-	} else {
-		// Use the default duration if not provided
-		expiredAt = time.Now().UTC().Add(s.defaultExpiration)
+	} else { // Fallback to the default expiration
+		// Never expire the URL if default duration is 0
+		if s.defaultExpiration == time.Duration(0) {
+			// Set to maximum time to never expire
+			expiredAt = time.Unix(1<<63-1, 0)
+		} else { // Otherwise, use the default expiration
+			expiredAt = time.Now().UTC().Add(s.defaultExpiration)
+		}
 	}
 
 	// Insert into the database
