@@ -13,6 +13,7 @@ type UserService interface {
 	UserLogin(ctx context.Context, req model.LoginRequest) (*model.LoginResponse, error)
 	UserRegister(ctx context.Context, req model.RegisterRequest) error
 	GetEmailCode(ctx context.Context, req model.GetEmailCodeRequest) error
+	ResetPassword(ctx context.Context, req model.ResetPasswordRequest) error
 }
 
 type UserHandler struct {
@@ -81,12 +82,41 @@ func (h *UserHandler) UserRegister(c echo.Context) error {
 	})
 }
 
+// PUT /api/reset_password
+func (h *UserHandler) ResetPassword(c echo.Context) error {
+	// Extract parameters from the request
+	var req model.ResetPasswordRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// Validate the parameters (email, email code, password, and confirmed password)
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Call the user service to reset the password
+	if err := h.userService.ResetPassword(c.Request().Context(), req); err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	// Successfully reset the password, return a success message
+	return c.JSON(http.StatusCreated, map[string]string{
+		"message": "Password reset successfully",
+	})
+}
+
 // POST /api/email_code
 func (h *UserHandler) GetEmailCode(c echo.Context) error {
 	// Extract email from request
 	var req model.GetEmailCodeRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// Validate the email parameter
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	// Call the user service to get the email code
@@ -98,5 +128,14 @@ func (h *UserHandler) GetEmailCode(c echo.Context) error {
 	// Return the email code status
 	return c.JSON(http.StatusCreated, map[string]string{
 		"message": "Email code sent successfully",
+	})
+}
+
+// GET /api/user/test_auth
+func (h *UserHandler) TestAuth(c echo.Context) error {
+	// This endpoint is for testing user authentication
+	// If the user is authenticated, it will return a success message
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "User is authenticated",
 	})
 }

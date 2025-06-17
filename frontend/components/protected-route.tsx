@@ -14,5 +14,6 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  // 已认证，显示受保护的内容
   return <>{children}</>;
 }

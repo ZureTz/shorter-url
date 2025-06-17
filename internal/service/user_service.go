@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"fmt"
+	"log"
 	"math/big"
 	"time"
 
@@ -87,6 +88,13 @@ func (s *UserService) UserRegister(ctx context.Context, req model.RegisterReques
 		return fmt.Errorf("invalid or expired email code")
 	}
 
+	// Code exists, defer deletion of the email code from cacher
+	defer func() {
+		if err := s.cacher.DeleteEmailCode(ctx, req.EmailCode); err != nil {
+			log.Printf("failed to delete email code: %v", err)
+		}
+	}()
+
 	// Check if the email matches the one stored in the cacher
 	if *email != req.Email {
 		return fmt.Errorf("invalid email code")
@@ -138,8 +146,21 @@ func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRe
 		return err
 	}
 
+	// Query the database to check if the email already exists
+	existingUser, err := s.querier.GetUserInfoFromEmail(ctx, req.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	// If the email already exists, add username to the message
+	var message string
+	if err == nil {
+		message += fmt.Sprintf("<p>Hello <b>%s</b>,</p>", existingUser.Username)
+	}
+	message += fmt.Sprintf("Your email verification code is: %s", *emailCode)
+
 	// Send the email code to the user's email address
-	s.mailer.SendEmail(req.Email, "Your Email verification code", fmt.Sprintf("Your email verification code is: %s", *emailCode))
+	s.mailer.SendEmail(req.Email, "Your Email verification code", message)
 
 	// Store the email code in the cacher with an expiration time
 	err = s.cacher.StoreCodeAndEmail(ctx, *emailCode, req.Email)
@@ -148,6 +169,55 @@ func (s *UserService) GetEmailCode(ctx context.Context, req model.GetEmailCodeRe
 	}
 
 	// Finally, return nil to indicate success
+	return nil
+}
+
+// ResetPassword handles the password reset request
+func (s *UserService) ResetPassword(ctx context.Context, req model.ResetPasswordRequest) error {
+	// Validate the email code from cacher
+	email, err := s.cacher.GetEmailUsingCode(ctx, req.EmailCode)
+	if err != nil {
+		return err
+	}
+
+	// If email code is nil, it means the code is invalid or expired
+	if email == nil {
+		return fmt.Errorf("invalid or expired email code")
+	}
+
+	// Code exists, defer deletion of the email code from cacher
+	defer func() {
+		if err := s.cacher.DeleteEmailCode(ctx, req.EmailCode); err != nil {
+			log.Printf("failed to delete email code: %v", err)
+		}
+	}()
+
+	// Check if the email matches the one stored in the cacher
+	if *email != req.Email {
+		return fmt.Errorf("invalid email code")
+	}
+
+	// Hash the new password using bcrypt
+	hashedPassword, err := s.pwdManager.GenerateHashedPassword(req.Password)
+	if err != nil {
+		return err
+	}
+
+	// Execute the password reset in the database
+	err = s.querier.ResetUserPassword(ctx, repo.ResetUserPasswordParams{
+		Email:        req.Email,
+		PasswordHash: hashedPassword,
+	})
+
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("no user found with the provided email")
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to reset password: %w", err)
+	}
+
+	// Successfully reset the password, now return nil
 	return nil
 }
 

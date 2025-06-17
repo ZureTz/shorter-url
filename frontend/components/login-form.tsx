@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -48,7 +49,6 @@ export function LoginForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log("提交的登录数据:", values);
       const success = await login(values.username, values.password);
       if (success) {
         toast.success("登录成功！", {
@@ -119,11 +119,26 @@ export function LoginForm() {
         </form>
       </Form>
 
-      <div className="text-sm text-gray-600 dark:text-gray-300 text-center space-y-1">
-        <p className="font-medium">测试账号信息：</p>
-        <p>用户名: admin</p>
-        <p>密码: password</p>
+      <div className="text-center space-y-2">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          <Link 
+            href="/reset-password" 
+            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            忘记密码？
+          </Link>
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          还没有账号？{" "}
+          <Link 
+            href="/register" 
+            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            立即注册
+          </Link>
+        </p>
       </div>
+
     </div>
   );
 }

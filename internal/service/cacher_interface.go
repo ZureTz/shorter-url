@@ -13,4 +13,5 @@ type Cacher interface {
 	// For User service
 	GetEmailUsingCode(ctx context.Context, emailCode string) (*string, error)
 	StoreCodeAndEmail(ctx context.Context, emailCode string, email string) error
+	DeleteEmailCode(ctx context.Context, emailCode string) error
 }

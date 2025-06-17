@@ -37,6 +37,29 @@ func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) er
 	return err
 }
 
+const getUserInfoFromEmail = `-- name: GetUserInfoFromEmail :one
+select
+  id, user_id, username, password_hash, email, created_at
+from
+  users
+where
+  email = $1
+`
+
+func (q *Queries) GetUserInfoFromEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserInfoFromEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Email,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserInfoFromUsername = `-- name: GetUserInfoFromUsername :one
 select
   id, user_id, username, password_hash, email, created_at
@@ -82,4 +105,22 @@ func (q *Queries) IsNewUserAvailable(ctx context.Context, arg IsNewUserAvailable
 	var is_available bool
 	err := row.Scan(&is_available)
 	return is_available, err
+}
+
+const resetUserPassword = `-- name: ResetUserPassword :exec
+update users
+set
+  password_hash = $1
+where
+  email = $2
+`
+
+type ResetUserPasswordParams struct {
+	PasswordHash string `json:"password_hash"`
+	Email        string `json:"email"`
+}
+
+func (q *Queries) ResetUserPassword(ctx context.Context, arg ResetUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, resetUserPassword, arg.PasswordHash, arg.Email)
+	return err
 }

@@ -13,9 +13,11 @@ type Querier interface {
 	CreateURL(ctx context.Context, arg CreateURLParams) (Url, error)
 	DeleteOutdatedURLs(ctx context.Context) error
 	GetURLByShortCode(ctx context.Context, shortCode string) (Url, error)
+	GetUserInfoFromEmail(ctx context.Context, email string) (User, error)
 	GetUserInfoFromUsername(ctx context.Context, username string) (User, error)
 	IsNewUserAvailable(ctx context.Context, arg IsNewUserAvailableParams) (bool, error)
 	IsShortCodeAvailable(ctx context.Context, shortCode string) (bool, error)
+	ResetUserPassword(ctx context.Context, arg ResetUserPasswordParams) error
 }
 
 var _ Querier = (*Queries)(nil)

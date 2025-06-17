@@ -56,7 +56,7 @@ func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
 	// Get the original URL from the service using the code
 	originalURL, err := h.urlService.GetLongURLInfo(c.Request().Context(), shortcode)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusNotFound, "URL not found")
 	}
 
 	// Redirect to the original URL

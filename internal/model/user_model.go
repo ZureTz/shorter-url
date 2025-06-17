@@ -26,3 +26,10 @@ type RegisterRequest struct {
 type GetEmailCodeRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
+
+type ResetPasswordRequest struct {
+	Email             string `json:"email" validate:"required,email"`
+	EmailCode         string `json:"email_code" validate:"required,len=6,numeric"`
+	Password          string `json:"password" validate:"required,min=6,max=50,custom_password_validator"`
+	ConfirmedPassword string `json:"confirmed_password" validate:"required,eqfield=Password"`
+}

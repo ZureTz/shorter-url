@@ -115,7 +115,8 @@ func (a *App) Init(filePath string) error {
 	e.POST("/api/login", a.userHandler.UserLogin)
 	e.POST("/api/register", a.userHandler.UserRegister)
 	e.POST("/api/email_code", a.userHandler.GetEmailCode)
-
+	e.PUT("/api/reset_password", a.userHandler.ResetPassword)
+	
 	r := e.Group("/api/user")
 	// Add JWT middleware for protected routes
 	config := echoJWT.Config{
@@ -126,6 +127,9 @@ func (a *App) Init(filePath string) error {
 		TokenLookup: "cookie:token", // Look for JWT in the cookie named "token"
 	}
 	r.Use(echoJWT.WithConfig(config))
+
+	// For testing user authentication
+	r.GET("/test_auth", a.userHandler.TestAuth)
 
 	// For url controller
 	r.POST("/url", a.urlHandler.CreateShortURL)

@@ -34,3 +34,19 @@ func (c *RedisCacher) StoreCodeAndEmail(ctx context.Context, emailCode string, e
 	// Successfully stored the email code and email in cache, return nil
 	return nil
 }
+
+// DeleteEmailCode deletes the email code from Redis
+func (c *RedisCacher) DeleteEmailCode(ctx context.Context, emailCode string) error {
+	err := c.client.Del(ctx, emailKeyPrefix+emailCode).Err()
+	// If the key does not exist, return nil
+	if err == redis.Nil {
+		return nil
+	}
+	// If there is an error other than key not found, return the error
+	if err != nil {
+		return err
+	}
+
+	// Successfully deleted the email code from cache, return nil
+	return nil
+}

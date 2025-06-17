@@ -37,8 +37,8 @@ const formSchema = z.object({
     ),
   duration: z
     .number()
-    .min(1, "有效期最少1小时")
-    .max(720, "有效期最多720小时（30天）")
+    .min(1, "有效期最少1天")
+    .max(365, "有效期最多365天（1年）")
     .optional(),
 });
 
@@ -61,8 +61,7 @@ export function ShortLinkForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log("提交的表单数据:", values);
-      const response = await fetch("/api/url", {
+      const response = await fetch("/api/user/url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,7 +71,6 @@ export function ShortLinkForm() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("短链接创建成功:", result);
         toast.success("短链接创建成功！", {
           description: `短链接: ${result.short_url || result.shortUrl}`,
         });
@@ -144,11 +142,11 @@ export function ShortLinkForm() {
             name="duration"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>有效期（小时）</FormLabel>
+                <FormLabel>有效期（天）</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="输入1-720小时，默认为168小时（7天）"
+                    placeholder="输入1-365天，不填写则默认无限期"
                     {...field}
                     onChange={(e) =>
                       field.onChange(
@@ -159,7 +157,7 @@ export function ShortLinkForm() {
                   />
                 </FormControl>
                 <FormDescription>
-                  不填写则默认7天有效期，最长可设置30天
+                  不填写则默认无限期，最长可设置365天
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -205,7 +203,9 @@ export function ShortLinkForm() {
                 有效期至：
               </span>
               <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                {new Date(shortLinkResult.expiredAt).toLocaleString(navigator.language)}
+                {!shortLinkResult.expiredAt || shortLinkResult.expiredAt === "0001-01-01T00:00:00Z"
+                  ? "无限期"
+                  : new Date(shortLinkResult.expiredAt).toLocaleString(navigator.language)}
               </span>
             </div>
           </div>

@@ -7,6 +7,15 @@ where
   username = $1
 ;
 
+-- name: GetUserInfoFromEmail :one
+select
+  *
+from
+  users
+where
+  email = $1
+;
+
 -- name: CreateNewUser :exec
 insert into users (
   user_id,
@@ -27,3 +36,11 @@ select not exists (
     username = $1
     or email = $2
 ) as is_available;
+
+-- name: ResetUserPassword :exec
+update users
+set
+  password_hash = $1
+where
+  email = $2
+;
