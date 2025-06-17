@@ -15,17 +15,19 @@ insert into urls (
   original_url,
   short_code,
   is_custom,
-  expired_at
+  expired_at,
+  created_by
 ) values (
-  $1, $2, $3, $4
-) returning id, original_url, short_code, is_custom, created_at, expired_at
+  $1, $2, $3, $4, $5
+) returning id, original_url, short_code, is_custom, created_at, expired_at, created_by
 `
 
 type CreateURLParams struct {
-	OriginalUrl string       `json:"original_url"`
-	ShortCode   string       `json:"short_code"`
-	IsCustom    bool         `json:"is_custom"`
-	ExpiredAt   sql.NullTime `json:"expired_at"`
+	OriginalUrl string         `json:"original_url"`
+	ShortCode   string         `json:"short_code"`
+	IsCustom    bool           `json:"is_custom"`
+	ExpiredAt   sql.NullTime   `json:"expired_at"`
+	CreatedBy   sql.NullString `json:"created_by"`
 }
 
 func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, error) {
@@ -34,6 +36,7 @@ func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, erro
 		arg.ShortCode,
 		arg.IsCustom,
 		arg.ExpiredAt,
+		arg.CreatedBy,
 	)
 	var i Url
 	err := row.Scan(
@@ -43,6 +46,7 @@ func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, erro
 		&i.IsCustom,
 		&i.CreatedAt,
 		&i.ExpiredAt,
+		&i.CreatedBy,
 	)
 	return i, err
 }
@@ -63,7 +67,7 @@ func (q *Queries) DeleteOutdatedURLs(ctx context.Context) error {
 
 const getURLByShortCode = `-- name: GetURLByShortCode :one
 select 
-  id, original_url, short_code, is_custom, created_at, expired_at 
+  id, original_url, short_code, is_custom, created_at, expired_at, created_by 
 from 
   urls 
 where 
@@ -85,8 +89,63 @@ func (q *Queries) GetURLByShortCode(ctx context.Context, shortCode string) (Url,
 		&i.IsCustom,
 		&i.CreatedAt,
 		&i.ExpiredAt,
+		&i.CreatedBy,
 	)
 	return i, err
+}
+
+const getUserShortURLs = `-- name: GetUserShortURLs :many
+select 
+  id, original_url, short_code, is_custom, created_at, expired_at, created_by
+from
+  urls
+where 
+  created_by = $1
+  and (
+    expired_at is null
+    or
+    expired_at > current_timestamp
+  )
+order by
+  created_at desc
+limit $2 offset $3
+`
+
+type GetUserShortURLsParams struct {
+	CreatedBy sql.NullString `json:"created_by"`
+	Limit     int32          `json:"limit"`
+	Offset    int32          `json:"offset"`
+}
+
+func (q *Queries) GetUserShortURLs(ctx context.Context, arg GetUserShortURLsParams) ([]Url, error) {
+	rows, err := q.db.QueryContext(ctx, getUserShortURLs, arg.CreatedBy, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Url
+	for rows.Next() {
+		var i Url
+		if err := rows.Scan(
+			&i.ID,
+			&i.OriginalUrl,
+			&i.ShortCode,
+			&i.IsCustom,
+			&i.CreatedAt,
+			&i.ExpiredAt,
+			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const isShortCodeAvailable = `-- name: IsShortCodeAvailable :one

@@ -134,6 +134,9 @@ func (a *App) Init(filePath string) error {
 	// For url controller
 	r.POST("/url", a.urlHandler.CreateShortURL)
 
+	// For getting user's short URLs
+	r.GET("/my_urls", a.urlHandler.GetMyURLs)
+
 	// Bind the URL handler to the Echo instance
 	a.e = e
 
@@ -143,16 +146,16 @@ func (a *App) Init(filePath string) error {
 // Run the application
 func (a *App) Run() {
 	// Start the server
-	go a.StartServer()
+	go a.startServer()
 
 	// Start the cleanup routine for outdated URLs
 	go a.cleanUp()
 
 	// Handle graceful shutdown
-	a.StopServer()
+	a.stopServer()
 }
 
-func (a *App) StartServer() {
+func (a *App) startServer() {
 	a.e.Logger.Fatal(a.e.Start(fmt.Sprintf(":%d", a.conf.Server.Port)))
 }
 
@@ -168,7 +171,7 @@ func (a *App) cleanUp() {
 	}
 }
 
-func (a *App) StopServer() {
+func (a *App) stopServer() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

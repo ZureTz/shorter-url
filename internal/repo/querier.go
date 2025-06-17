@@ -15,6 +15,7 @@ type Querier interface {
 	GetURLByShortCode(ctx context.Context, shortCode string) (Url, error)
 	GetUserInfoFromEmail(ctx context.Context, email string) (User, error)
 	GetUserInfoFromUsername(ctx context.Context, username string) (User, error)
+	GetUserShortURLs(ctx context.Context, arg GetUserShortURLsParams) ([]Url, error)
 	IsNewUserAvailable(ctx context.Context, arg IsNewUserAvailableParams) (bool, error)
 	IsShortCodeAvailable(ctx context.Context, shortCode string) (bool, error)
 	ResetUserPassword(ctx context.Context, arg ResetUserPasswordParams) error

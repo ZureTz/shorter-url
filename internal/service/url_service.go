@@ -88,6 +88,10 @@ func (s *URLService) CreateShortURL(ctx context.Context, req model.CreateShortUR
 			Time:  expiredAt,
 			Valid: !expiredAt.IsZero(),
 		},
+		CreatedBy: sql.NullString{
+			String: req.CreatedBy,
+			Valid:  req.CreatedBy != "",
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -136,6 +140,26 @@ func (s *URLService) GetLongURLInfo(ctx context.Context, shortCode string) (stri
 // Delete outdated URLs from the database
 func (s *URLService) DeleteOutdatedURLs(ctx context.Context) error {
 	return s.querier.DeleteOutdatedURLs(ctx)
+}
+
+// Get URLs created by the user
+func (s *URLService) GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest) (*model.GetUserShortURLsResponse, error) {
+	// Retrieve the URLs created by the user from the database
+	urls, err := s.querier.GetUserShortURLs(ctx, repo.GetUserShortURLsParams{
+		CreatedBy: sql.NullString{
+			String: req.Username,
+			Valid:  req.Username != "",
+		},
+		Limit:  int32(req.PerPage),
+		Offset: int32((req.Page - 1) * req.PerPage),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GetUserShortURLsResponse{
+		URLs: urls,
+	}, nil
 }
 
 // Generate the short code, search for availability

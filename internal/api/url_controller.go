@@ -12,6 +12,7 @@ import (
 type URLService interface {
 	CreateShortURL(ctx context.Context, req model.CreateShortURLRequest) (*model.CreateShortURLResponse, error)
 	GetLongURLInfo(ctx context.Context, shortURL string) (string, error)
+	GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest) (*model.GetUserShortURLsResponse, error)
 }
 
 type URLHandler struct {
@@ -61,4 +62,27 @@ func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
 
 	// Redirect to the original URL
 	return c.Redirect(http.StatusFound, originalURL)
+}
+
+// GET /api/user/my_urls
+func (h *URLHandler) GetMyURLs(c echo.Context) error {
+	// Extract username from the request context
+	var req model.GetUserShortURLsRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// Validate the parameters (is username valid, etc.)
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Call the URL service to get the user's shortened URLs
+	urls, err := h.urlService.GetMyURLs(c.Request().Context(), req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// Return the list of shortened URLs
+	return c.JSON(http.StatusOK, urls)
 }
