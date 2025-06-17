@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   // Generate static HTML for all pages
-  output: "export",
+  // output: "export",
 
   async rewrites() {
     const backendUrl =
@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: "/:path*",
+        destination: `${backendUrl}/:path*`,
       },
     ];
   },

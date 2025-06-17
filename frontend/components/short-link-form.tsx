@@ -60,13 +60,15 @@ export function ShortLinkForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const userData = localStorage.getItem("user_data") || "{}";
+    const user = JSON.parse(userData);
     try {
       const response = await fetch("/api/user/url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, created_by: user?.username }),
       });
 
       if (response.ok) {

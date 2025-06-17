@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/labstack/echo/v4"
@@ -67,18 +69,33 @@ func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
 // GET /api/user/my_urls
 func (h *URLHandler) GetMyURLs(c echo.Context) error {
 	// Extract username from the request context
-	var req model.GetUserShortURLsRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	req := c.QueryParams()
+
+	log.Println(req)
+
+	pageNumber, err := strconv.Atoi(req.Get("page"))
+	if err != nil {
+		return err
+	}
+
+	perPage, err := strconv.Atoi(req.Get("per_page"))
+	if err != nil {
+		return err
+	}
+
+	reqParams := model.GetUserShortURLsRequest{
+		Username: req.Get("username"),
+		Page:     pageNumber,
+		PerPage:  perPage,
 	}
 
 	// Validate the parameters (is username valid, etc.)
-	if err := c.Validate(&req); err != nil {
+	if err := c.Validate(&reqParams); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	// Call the URL service to get the user's shortened URLs
-	urls, err := h.urlService.GetMyURLs(c.Request().Context(), req)
+	urls, err := h.urlService.GetMyURLs(c.Request().Context(), reqParams)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
