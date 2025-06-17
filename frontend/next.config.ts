@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   // Generate static HTML for all pages
-  // output: "export",
+  output: "export",
+  trailingSlash: true,
+  distDir: 'dist',
 
   // async rewrites() {
   //   const backendUrl =
