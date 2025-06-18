@@ -29,7 +29,7 @@ type GetUserShortURLsRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=20,custom_username_validator"`
 	// Pagination parameters
 	Page    int `json:"page" validate:"required,min=1"`
-	PerPage int `json:"per_page" validate:"required,min=1,max=100"`
+	PerPage int `json:"per_page" validate:"required,min=1,max=1000"`
 }
 
 type GetUserShortURLsResponse struct {
