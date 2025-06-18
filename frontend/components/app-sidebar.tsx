@@ -27,7 +27,7 @@ export function AppSidebar() {
     },
     {
       title: "我的短链接",
-      url: "my-urls",
+      url: "/my-urls",
       icon: Inbox,
     },
   ];

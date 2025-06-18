@@ -13,16 +13,10 @@ interface GetUserShortURLsResponse {
   urls: Url[];
 }
 
-interface PageProps {
-  page: number;
-  per_page: number;
-}
-
 export default function MyUrlsPage() {
   const { user, isAuthenticated } = useAuth();
   const [urls, setUrls] = useState<Url[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [pageProps, setPageProps] = useState<PageProps>({ page: 1, per_page: 20 });
 
   const fetchUrls = useCallback(async () => {
     if (!isAuthenticated || !user) {
@@ -33,11 +27,11 @@ export default function MyUrlsPage() {
     try {
       setIsLoading(true);
 
-      // 根据后端 controller，需要通过查询参数传递 username, page, per_page
+      // 获取所有数据，不再使用后端分页
       const params = new URLSearchParams({
         username: user.username,
-        page: pageProps.page.toString(),
-        per_page: pageProps.per_page.toString(),
+        page: "1",
+        per_page: "1000", // 获取更多数据，让前端表格处理分页
       });
 
       const response = await fetch(`/api/user/my_urls?${params.toString()}`, {
@@ -61,7 +55,7 @@ export default function MyUrlsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, pageProps, user]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     fetchUrls();
@@ -70,18 +64,6 @@ export default function MyUrlsPage() {
   const handleRefresh = () => {
     fetchUrls();
     toast.success("数据已刷新");
-  };
-
-  const canGoToPrevious = pageProps.page > 1;
-
-  const handlePreviousPage = () => {
-    if (canGoToPrevious) {
-      setPageProps(prev => ({ ...prev, page: prev.page - 1 }));
-    }
-  };
-
-  const handleNextPage = () => {
-    setPageProps(prev => ({ ...prev, page: prev.page + 1 }));
   };
 
   return (
@@ -153,28 +135,6 @@ export default function MyUrlsPage() {
               isLoading={isLoading}
             />
           </div>
-
-          {/* 分页控件 */}
-          <div className="flex items-center justify-between px-6 py-4 border-t">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePreviousPage}
-                disabled={!canGoToPrevious || isLoading}
-              >
-                上一页
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-              >
-                下一页
-              </Button>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

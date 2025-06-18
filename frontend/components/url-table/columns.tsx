@@ -136,8 +136,8 @@ export const columns: ColumnDef<Url>[] = [
 
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${isCustom
-            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
           }`}>
           {isCustom ? "自定义" : "系统生成"}
         </span>
@@ -164,9 +164,9 @@ export const columns: ColumnDef<Url>[] = [
 
       return (
         <div className="text-sm">
-          <div>{date.toLocaleDateString("zh-CN")}</div>
+          <div>{date.toLocaleDateString(navigator.language)}</div>
           <div className="text-gray-500 dark:text-gray-400 text-xs">
-            {date.toLocaleTimeString("zh-CN")}
+            {date.toLocaleTimeString(navigator.language)}
           </div>
         </div>
       )
@@ -189,11 +189,11 @@ export const columns: ColumnDef<Url>[] = [
     sortingFn: (rowA, rowB) => {
       const expiredAtA = rowA.getValue("expired_at") as Url["expired_at"]
       const expiredAtB = rowB.getValue("expired_at") as Url["expired_at"]
-      
+
       // 永不过期的项目视为最大值
       const timeA = (!expiredAtA || !expiredAtA.Valid) ? Infinity : new Date(expiredAtA.Time).getTime()
       const timeB = (!expiredAtB || !expiredAtB.Valid) ? Infinity : new Date(expiredAtB.Time).getTime()
-      
+
       return timeA - timeB
     },
     cell: ({ row }) => {
@@ -214,13 +214,13 @@ export const columns: ColumnDef<Url>[] = [
       return (
         <div className="text-sm">
           <div className={isExpired ? "text-red-600 dark:text-red-400" : ""}>
-            {date.toLocaleDateString("zh-CN")}
+            {date.toLocaleDateString(navigator.language)}
           </div>
           <div className={`text-xs ${isExpired
-              ? "text-red-500 dark:text-red-400"
-              : "text-gray-500 dark:text-gray-400"
+            ? "text-red-500 dark:text-red-400"
+            : "text-gray-500 dark:text-gray-400"
             }`}>
-            {date.toLocaleTimeString("zh-CN")}
+            {date.toLocaleTimeString(navigator.language)}
             {isExpired && " (已过期)"}
           </div>
         </div>

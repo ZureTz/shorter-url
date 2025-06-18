@@ -57,6 +57,11 @@ export function MyUrlsTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    initialState: {
+      pagination: {
+        pageSize: 20, // 设置每页显示20行
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -176,6 +181,55 @@ export function MyUrlsTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+      
+      {/* 表格内置分页控件 */}
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex items-center space-x-2">
+          <div className="flex-1 text-sm text-muted-foreground">
+            显示第 {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} 到{" "}
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}{" "}
+            项，共 {table.getFilteredRowModel().rows.length} 项
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">每页显示</span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value))
+              }}
+              className="px-2 py-1 border rounded text-sm"
+            >
+              {[10, 20, 50, 100].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-muted-foreground">项</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            上一页
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            下一页
+          </Button>
+        </div>
       </div>
     </div>
   )
