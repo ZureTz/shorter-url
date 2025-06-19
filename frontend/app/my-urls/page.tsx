@@ -73,10 +73,10 @@ export default function MyUrlsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              我的短链接
+              你好 {user ? `, ${user.username} !` : ""}
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              管理您创建的所有短链接
+              这里是您创建的短链接列表，您可以在这里查看、管理和创建新的短链接。
             </p>
           </div>
           <div className="flex items-center space-x-2">
