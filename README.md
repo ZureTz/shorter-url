@@ -58,6 +58,13 @@ migrate -path database/migrate \
         drop -f
 ```
 
+### Set timezone of database to UTC in PostgreSQL
+
+Make sure to set the timezone in PostgreSQL to UTC. You can do this by running the following command in the PostgreSQL shell:
+```sql
+ALTER DATABASE url_db SET timezone TO 'UTC';
+```
+
 ## Copy example config file
 ```bash
 cp config.example.toml config.toml
