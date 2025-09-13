@@ -19,7 +19,7 @@ export default function MyUrlsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUrls = useCallback(async () => {
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated) {
       setIsLoading(false);
       return;
     }
@@ -29,7 +29,6 @@ export default function MyUrlsPage() {
 
       // 获取所有数据，不再使用后端分页
       const params = new URLSearchParams({
-        username: user.username,
         page: "1",
         per_page: "1000", // 获取更多数据，让前端表格处理分页
       });
@@ -55,7 +54,7 @@ export default function MyUrlsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchUrls();

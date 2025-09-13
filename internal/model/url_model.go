@@ -27,8 +27,8 @@ type CreateShortURLResponse struct {
 type GetUserShortURLsRequest struct {
 	// Username/ID is not needed as it will be extracted from JWT
 	// Pagination parameters
-	Page    int `json:"page" validate:"required,min=1"`
-	PerPage int `json:"per_page" validate:"required,min=1,max=1000"`
+	Page    int `query:"page" validate:"required,min=1"`
+	PerPage int `query:"per_page" validate:"required,min=1,max=1000"`
 }
 
 type GetUserShortURLsResponse struct {
