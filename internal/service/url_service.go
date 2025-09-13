@@ -143,12 +143,12 @@ func (s *URLService) DeleteOutdatedURLs(ctx context.Context) error {
 }
 
 // Get URLs created by the user
-func (s *URLService) GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest) (*model.GetUserShortURLsResponse, error) {
+func (s *URLService) GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest, username string) (*model.GetUserShortURLsResponse, error) {
 	// Retrieve the URLs created by the user from the database
 	urls, err := s.querier.GetUserShortURLs(ctx, repo.GetUserShortURLsParams{
 		CreatedBy: sql.NullString{
-			String: req.Username,
-			Valid:  req.Username != "",
+			String: username,
+			Valid:  username != "",
 		},
 		Limit:  int32(req.PerPage),
 		Offset: int32((req.Page - 1) * req.PerPage),

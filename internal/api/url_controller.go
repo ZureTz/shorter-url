@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ZureTz/shorter-url/internal/model"
 	"github.com/labstack/echo/v4"
@@ -14,17 +12,23 @@ import (
 type URLService interface {
 	CreateShortURL(ctx context.Context, req model.CreateShortURLRequest) (*model.CreateShortURLResponse, error)
 	GetLongURLInfo(ctx context.Context, shortURL string) (string, error)
-	GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest) (*model.GetUserShortURLsResponse, error)
+	GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest, username string) (*model.GetUserShortURLsResponse, error)
+}
+
+type JWTExtractor interface {
+	ExtractUsernameFromJWT(ctx echo.Context) (string, error)
 }
 
 type URLHandler struct {
-	urlService URLService
+	urlService   URLService
+	jwtExtractor JWTExtractor
 }
 
 // NewURLHandler creates a new URLHandler with the provided URLService
-func NewURLHandler(urlService URLService) *URLHandler {
+func NewURLHandler(urlService URLService, jwtExtractor JWTExtractor) *URLHandler {
 	return &URLHandler{
-		urlService: urlService,
+		urlService:   urlService,
+		jwtExtractor: jwtExtractor,
 	}
 }
 
@@ -69,33 +73,23 @@ func (h *URLHandler) RedirectToOriginalURL(c echo.Context) error {
 // GET /api/user/my_urls
 func (h *URLHandler) GetMyURLs(c echo.Context) error {
 	// Extract username from the request context
-	req := c.QueryParams()
-
-	log.Println(req)
-
-	pageNumber, err := strconv.Atoi(req.Get("page"))
-	if err != nil {
-		return err
+	var req model.GetUserShortURLsRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	perPage, err := strconv.Atoi(req.Get("per_page"))
-	if err != nil {
-		return err
-	}
-
-	reqParams := model.GetUserShortURLsRequest{
-		Username: req.Get("username"),
-		Page:     pageNumber,
-		PerPage:  perPage,
-	}
-
 	// Validate the parameters (is username valid, etc.)
-	if err := c.Validate(&reqParams); err != nil {
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Get user ID from JWT
+	username, err := h.jwtExtractor.ExtractUsernameFromJWT(c)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	// Call the URL service to get the user's shortened URLs
-	urls, err := h.urlService.GetMyURLs(c.Request().Context(), reqParams)
+	urls, err := h.urlService.GetMyURLs(c.Request().Context(), req, username)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

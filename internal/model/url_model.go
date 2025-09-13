@@ -25,8 +25,7 @@ type CreateShortURLResponse struct {
 }
 
 type GetUserShortURLsRequest struct {
-	// Username of the user whose shortened URLs are to be retrieved
-	Username string `json:"username" validate:"required,min=3,max=20,custom_username_validator"`
+	// Username/ID is not needed as it will be extracted from JWT
 	// Pagination parameters
 	Page    int `json:"page" validate:"required,min=1"`
 	PerPage int `json:"per_page" validate:"required,min=1,max=1000"`

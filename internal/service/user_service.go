@@ -14,7 +14,7 @@ import (
 )
 
 type JWTGenerator interface {
-	GenerateToken(userID string) (string, error)
+	GenerateToken(userID, username string) (string, error)
 	GetTokenExpiration() time.Duration
 }
 
@@ -60,7 +60,7 @@ func (s *UserService) UserLogin(ctx context.Context, req model.LoginRequest) (*m
 		return nil, fmt.Errorf("your password is incorrect, please try again")
 	}
 
-	tokenString, err := s.jwtGenerator.GenerateToken(userInfo.UserID)
+	tokenString, err := s.jwtGenerator.GenerateToken(userInfo.UserID, userInfo.Username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}

@@ -1,3 +1,12 @@
+-- name: GetUserInfoFromUserID :one
+select
+  *
+from
+  users
+where
+  user_id = $1
+;
+
 -- name: GetUserInfoFromUsername :one
 select
   *

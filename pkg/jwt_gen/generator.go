@@ -19,10 +19,11 @@ func NewJWTGenerator(c config.AuthConfig) *JWTGenerator {
 	}
 }
 
-func (g *JWTGenerator) GenerateToken(userID string) (string, error) {
+func (g *JWTGenerator) GenerateToken(userID, username string) (string, error) {
 	// User exists and password matches, generate a JWT token
 	claims := &JwtCustomClaims{
-		UserID: userID,
+		UserID:   userID,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.jwtExpiration)),

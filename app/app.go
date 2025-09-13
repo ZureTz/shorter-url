@@ -20,6 +20,7 @@ import (
 	"github.com/ZureTz/shorter-url/pkg/password"
 	"github.com/ZureTz/shorter-url/pkg/shortcode"
 	"github.com/ZureTz/shorter-url/pkg/validator"
+
 	"github.com/golang-jwt/jwt/v5"
 	echoJWT "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -27,21 +28,14 @@ import (
 )
 
 type App struct {
-	e      *echo.Echo
+	e    *echo.Echo
+	conf *config.Config
+
+	urlService *service.URLService
+
 	db     *sql.DB
 	cacher *cacher.RedisCacher
 	mailer *mailer.Mailer
-
-	// For generating and handling URLs
-	urlHandler    *api.URLHandler
-	urlService    *service.URLService
-	codeGenerator *shortcode.ShortCodeGenerator
-
-	// For user login and registration
-	userHandler *api.UserHandler
-	userService *service.UserService
-
-	conf *config.Config
 }
 
 func (a *App) Init(filePath string) error {
@@ -67,18 +61,25 @@ func (a *App) Init(filePath string) error {
 	a.cacher = cacher
 
 	// Initialize code generator
-	a.codeGenerator = shortcode.NewShortCodeGenerator(conf.CodeGen.ShortCodeLength)
+	codeGenerator := shortcode.NewShortCodeGenerator(conf.CodeGen.ShortCodeLength)
 
 	// Initialize URL service
-	a.urlService = service.NewURLService(
-		a.db,
-		a.cacher,
-		a.codeGenerator,
+	urlService := service.NewURLService(
+		db,
+		cacher,
+		codeGenerator,
 		conf.URLService,
 	)
+	a.urlService = urlService
+
+	// Initialize JWT extractor for URL handler
+	jwtExtractor, err := jwt_gen.NewJWTExtractor(conf.Auth)
+	if err != nil {
+		return err
+	}
 
 	// Initialize URL handler
-	a.urlHandler = api.NewURLHandler(a.urlService)
+	urlHandler := api.NewURLHandler(urlService, jwtExtractor)
 
 	// Initialize JWT generator and password manager
 	jwtGen := jwt_gen.NewJWTGenerator(conf.Auth)
@@ -91,8 +92,8 @@ func (a *App) Init(filePath string) error {
 	a.mailer = mailer.NewMailer(conf.Mailer)
 
 	// Initialize user service and handler
-	a.userService = service.NewUserService(a.db, cacher, jwtGen, pwdManager, a.mailer)
-	a.userHandler = api.NewUserHandler(a.userService)
+	userService := service.NewUserService(a.db, cacher, jwtGen, pwdManager, a.mailer)
+	userHandler := api.NewUserHandler(userService)
 
 	// Initialize Echo web framework
 	e := echo.New()
@@ -109,14 +110,14 @@ func (a *App) Init(filePath string) error {
 	e.Validator = validator.NewValidator()
 
 	// Register routes
-	e.GET("/:short_code", a.urlHandler.RedirectToOriginalURL)
+	e.GET("/:short_code", urlHandler.RedirectToOriginalURL)
 
 	// For user and authentication controller
-	e.POST("/api/login", a.userHandler.UserLogin)
-	e.POST("/api/register", a.userHandler.UserRegister)
-	e.POST("/api/email_code", a.userHandler.GetEmailCode)
-	e.PUT("/api/reset_password", a.userHandler.ResetPassword)
-	
+	e.POST("/api/login", userHandler.UserLogin)
+	e.POST("/api/register", userHandler.UserRegister)
+	e.POST("/api/email_code", userHandler.GetEmailCode)
+	e.PUT("/api/reset_password", userHandler.ResetPassword)
+
 	r := e.Group("/api/user")
 	// Add JWT middleware for protected routes
 	config := echoJWT.Config{
@@ -129,13 +130,13 @@ func (a *App) Init(filePath string) error {
 	r.Use(echoJWT.WithConfig(config))
 
 	// For testing user authentication
-	r.GET("/test_auth", a.userHandler.TestAuth)
+	r.GET("/test_auth", userHandler.TestAuth)
 
 	// For url controller
-	r.POST("/url", a.urlHandler.CreateShortURL)
+	r.POST("/url", urlHandler.CreateShortURL)
 
 	// For getting user's short URLs
-	r.GET("/my_urls", a.urlHandler.GetMyURLs)
+	r.GET("/my_urls", urlHandler.GetMyURLs)
 
 	// Bind the URL handler to the Echo instance
 	a.e = e
