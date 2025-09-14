@@ -73,7 +73,13 @@ export function ShortLinkForm() {
 
       if (response.ok) {
         const result = await response.json();
-        toast.success("短链接创建成功！", {
+
+        // 复制短链接到剪贴板
+        if (result.short_url || result.shortUrl) {
+          navigator.clipboard.writeText(result.short_url || result.shortUrl);
+        }
+
+        toast.success("短链接创建成功, 已复制到剪贴板", {
           description: `短链接: ${result.short_url || result.shortUrl}`,
         });
 
