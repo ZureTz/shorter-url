@@ -78,3 +78,4 @@ And edit the `config.toml` file with your database and redis credentials.
 go run main.go
 ```
 
+# curriculum-vitae
