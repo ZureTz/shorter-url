@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,17 +12,17 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { ChevronDown, Search } from "lucide-react"
+} from "@tanstack/react-table";
+import { ChevronDown, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -30,12 +30,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  isLoading?: boolean
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  isLoading?: boolean;
 }
 
 export function MyUrlsTable<TData, TValue>({
@@ -43,9 +43,12 @@ export function MyUrlsTable<TData, TValue>({
   data,
   isLoading = false,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
@@ -59,7 +62,7 @@ export function MyUrlsTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {
       pagination: {
-        pageSize: 20, // 设置每页显示20行
+        pageSize: 10, // 设置每页显示10行
       },
     },
     state: {
@@ -67,7 +70,7 @@ export function MyUrlsTable<TData, TValue>({
       columnFilters,
       columnVisibility,
     },
-  })
+  });
 
   return (
     <div className="w-full">
@@ -76,9 +79,14 @@ export function MyUrlsTable<TData, TValue>({
           <Search className="h-4 w-4 text-gray-500" />
           <Input
             placeholder="搜索原始链接..."
-            value={(table.getColumn("original_url")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("original_url")?.getFilterValue() as string) ??
+              ""
+            }
             onChange={(event) =>
-              table.getColumn("original_url")?.setFilterValue(event.target.value)
+              table
+                .getColumn("original_url")
+                ?.setFilterValue(event.target.value)
             }
             className="w-full sm:max-w-sm"
           />
@@ -108,8 +116,9 @@ export function MyUrlsTable<TData, TValue>({
                     {column.id === "is_custom" && "类型"}
                     {column.id === "created_at" && "创建时间"}
                     {column.id === "expired_at" && "过期时间"}
+                    {column.id === "actions" && "操作"}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -125,11 +134,11 @@ export function MyUrlsTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -182,14 +191,19 @@ export function MyUrlsTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      
+
       {/* 表格内置分页控件 */}
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex items-center space-x-2">
           <div className="flex-1 text-sm text-muted-foreground">
-            显示第 {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} 到{" "}
+            显示第{" "}
+            {table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+              1}{" "}
+            到{" "}
             {Math.min(
-              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{" "}
             项，共 {table.getFilteredRowModel().rows.length} 项
@@ -199,7 +213,7 @@ export function MyUrlsTable<TData, TValue>({
             <select
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
-                table.setPageSize(Number(e.target.value))
+                table.setPageSize(Number(e.target.value));
               }}
               className="px-2 py-1 border rounded text-sm"
             >
@@ -232,5 +246,5 @@ export function MyUrlsTable<TData, TValue>({
         </div>
       </div>
     </div>
-  )
+  );
 }

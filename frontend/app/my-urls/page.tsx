@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { MyUrlsTable } from "@/components/url-table/my-urls-table";
-import { columns, type Url } from "@/components/url-table/columns";
+import { createColumns, type Url } from "@/components/url-table/columns";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -65,6 +65,9 @@ export default function MyUrlsPage() {
     toast.success("数据已刷新");
   };
 
+  // 创建带刷新功能的列定义
+  const columns = useMemo(() => createColumns(fetchUrls), [fetchUrls]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -85,7 +88,9 @@ export default function MyUrlsPage() {
               disabled={isLoading}
               className="flex items-center space-x-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               <span>刷新</span>
             </Button>
             <Link href="/">
@@ -109,7 +114,13 @@ export default function MyUrlsPage() {
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {urls.filter(url => !url.expired_at?.Valid || new Date(url.expired_at.Time) > new Date()).length}
+              {
+                urls.filter(
+                  (url) =>
+                    !url.expired_at?.Valid ||
+                    new Date(url.expired_at.Time) > new Date(),
+                ).length
+              }
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
               当前有效链接
@@ -117,7 +128,7 @@ export default function MyUrlsPage() {
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {urls.filter(url => url.is_custom).length}
+              {urls.filter((url) => url.is_custom).length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
               当前自定义链接
@@ -128,11 +139,7 @@ export default function MyUrlsPage() {
         {/* 数据表格 */}
         <div className="bg-white dark:bg-gray-800 rounded-lg border">
           <div className="p-6">
-            <MyUrlsTable
-              columns={columns}
-              data={urls}
-              isLoading={isLoading}
-            />
+            <MyUrlsTable columns={columns} data={urls} isLoading={isLoading} />
           </div>
         </div>
       </div>
