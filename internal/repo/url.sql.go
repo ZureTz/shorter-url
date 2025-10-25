@@ -65,6 +65,25 @@ func (q *Queries) DeleteOutdatedURLs(ctx context.Context) error {
 	return err
 }
 
+const deleteURLFromId = `-- name: DeleteURLFromId :exec
+delete from
+  urls
+where 
+  id = $1
+  and
+  created_by = $2
+`
+
+type DeleteURLFromIdParams struct {
+	ID        int64          `json:"id"`
+	CreatedBy sql.NullString `json:"created_by"`
+}
+
+func (q *Queries) DeleteURLFromId(ctx context.Context, arg DeleteURLFromIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteURLFromId, arg.ID, arg.CreatedBy)
+	return err
+}
+
 const getURLByShortCode = `-- name: GetURLByShortCode :one
 select 
   id, original_url, short_code, is_custom, created_at, expired_at, created_by 

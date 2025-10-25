@@ -59,3 +59,11 @@ where
   expired_at <= current_timestamp
 ;
 
+-- name: DeleteURLFromId :exec
+delete from
+  urls
+where 
+  id = $1
+  and
+  created_by = $2
+;

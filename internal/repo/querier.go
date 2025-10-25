@@ -12,6 +12,7 @@ type Querier interface {
 	CreateNewUser(ctx context.Context, arg CreateNewUserParams) error
 	CreateURL(ctx context.Context, arg CreateURLParams) (Url, error)
 	DeleteOutdatedURLs(ctx context.Context) error
+	DeleteURLFromId(ctx context.Context, arg DeleteURLFromIdParams) error
 	GetURLByShortCode(ctx context.Context, shortCode string) (Url, error)
 	GetUserInfoFromEmail(ctx context.Context, email string) (User, error)
 	GetUserInfoFromUserID(ctx context.Context, userID string) (User, error)

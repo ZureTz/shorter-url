@@ -131,12 +131,12 @@ func (a *App) Init(filePath string) error {
 
 	// For testing user authentication
 	r.GET("/test_auth", userHandler.TestAuth)
-
-	// For url controller
+	// For creating a short URL
 	r.POST("/url", urlHandler.CreateShortURL)
-
 	// For getting user's short URLs
 	r.GET("/my_urls", urlHandler.GetMyURLs)
+	// For deleting a short URL
+	r.DELETE("/url", urlHandler.DeleteShortURL)
 
 	// Bind the URL handler to the Echo instance
 	a.e = e

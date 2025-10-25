@@ -162,6 +162,25 @@ func (s *URLService) GetMyURLs(ctx context.Context, req model.GetUserShortURLsRe
 	}, nil
 }
 
+// Delete a short URL created by the user
+func (s *URLService) DeleteShortURL(ctx context.Context, req model.DeleteUserShortURLRequest, username string) (*model.DeleteUserShortURLResponse, error) {
+	// Delete the URL from the database
+	err := s.querier.DeleteURLFromId(ctx, repo.DeleteURLFromIdParams{
+		ID: req.ID,
+		CreatedBy: sql.NullString{
+			String: username,
+			Valid:  username != "",
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.DeleteUserShortURLResponse{
+		Message: "Short URL deleted successfully",
+	}, nil
+}
+
 // Generate the short code, search for availability
 // If available, insert into the database
 // Otherwise, generate a new code and repeat

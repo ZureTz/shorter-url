@@ -13,6 +13,7 @@ type URLService interface {
 	CreateShortURL(ctx context.Context, req model.CreateShortURLRequest) (*model.CreateShortURLResponse, error)
 	GetLongURLInfo(ctx context.Context, shortURL string) (string, error)
 	GetMyURLs(ctx context.Context, req model.GetUserShortURLsRequest, username string) (*model.GetUserShortURLsResponse, error)
+	DeleteShortURL(ctx context.Context, req model.DeleteUserShortURLRequest, username string) (*model.DeleteUserShortURLResponse, error)
 }
 
 type JWTExtractor interface {
@@ -96,4 +97,33 @@ func (h *URLHandler) GetMyURLs(c echo.Context) error {
 
 	// Return the list of shortened URLs
 	return c.JSON(http.StatusOK, urls)
+}
+
+// DELETE /api/user/url
+func (h *URLHandler) DeleteShortURL(c echo.Context) error {
+	// Extract parameters from the request
+	var req model.DeleteUserShortURLRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Validate the parameters
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Get user ID from JWT
+	username, err := h.jwtExtractor.ExtractUsernameFromJWT(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Call the URL service to delete the shortened URL
+	resp, err := h.urlService.DeleteShortURL(c.Request().Context(), req, username)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// Return the success message
+	return c.JSON(http.StatusOK, resp)
 }

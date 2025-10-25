@@ -35,3 +35,13 @@ type GetUserShortURLsResponse struct {
 	// List of shortened URLs created by the user
 	URLs []repo.Url `json:"urls"`
 }
+
+type DeleteUserShortURLRequest struct {
+	// Id of the shortened URL to be deleted
+	ID int64 `json:"id" validate:"required,min=1"`
+}
+
+type DeleteUserShortURLResponse struct {
+	// Success message
+	Message string `json:"message"`
+}
