@@ -250,6 +250,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
             },
             body: JSON.stringify({
               id: url.id,
+              short_code: url.short_code,
             }),
           });
 

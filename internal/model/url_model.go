@@ -37,8 +37,10 @@ type GetUserShortURLsResponse struct {
 }
 
 type DeleteUserShortURLRequest struct {
-	// Id of the shortened URL to be deleted
+	// Id of the shortened URL to be deleted in the database
 	ID int64 `json:"id" validate:"required,min=1"`
+	// Short code of the URL to be deleted in the cache
+	ShortCode string `json:"short_code" validate:"required,alphanum,min=4,max=10"`
 }
 
 type DeleteUserShortURLResponse struct {

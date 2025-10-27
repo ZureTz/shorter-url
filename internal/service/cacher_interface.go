@@ -9,6 +9,7 @@ type Cacher interface {
 	// For URL service
 	GetURLFromCache(ctx context.Context, shortCode string) (*repo.Url, error)
 	StoreURLToCache(ctx context.Context, urlInfo repo.Url) error
+	DeleteURLFromCache(ctx context.Context, shortCode string) error
 
 	// For User service
 	GetEmailUsingCode(ctx context.Context, emailCode string) (*string, error)

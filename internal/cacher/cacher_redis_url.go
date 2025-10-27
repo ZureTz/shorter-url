@@ -65,3 +65,17 @@ func (c *RedisCacher) GetURLFromCache(ctx context.Context, shortCode string) (*r
 	// Return the URL information
 	return &urlInfo, nil
 }
+
+// DeleteURLFromCache deletes the URL information from the cache using redis
+func (c *RedisCacher) DeleteURLFromCache(ctx context.Context, shortCode string) error {
+	// Delete the URL information from Redis
+	err := c.client.Del(ctx, urlKeyPrefix+shortCode).Err()
+
+	// If the key does not exist, consider it successful
+	if err == redis.Nil {
+		return nil
+	}
+
+	// If there was an error, return it
+	return err
+}

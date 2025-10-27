@@ -164,6 +164,11 @@ func (s *URLService) GetMyURLs(ctx context.Context, req model.GetUserShortURLsRe
 
 // Delete a short URL created by the user
 func (s *URLService) DeleteShortURL(ctx context.Context, req model.DeleteUserShortURLRequest, username string) (*model.DeleteUserShortURLResponse, error) {
+	// Remove the URL from the cache first
+	if err := s.cacher.DeleteURLFromCache(ctx, req.ShortCode); err != nil {
+		return nil, err
+	}
+
 	// Delete the URL from the database
 	err := s.querier.DeleteURLFromId(ctx, repo.DeleteURLFromIdParams{
 		ID: req.ID,
