@@ -86,7 +86,9 @@ export function LoginForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("loginForm.usernameDescription")}</FormDescription>
+                <FormDescription>
+                  {t("loginForm.usernameDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -105,7 +107,9 @@ export function LoginForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("loginForm.passwordDescription")}</FormDescription>
+                <FormDescription>
+                  {t("loginForm.passwordDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -116,15 +120,17 @@ export function LoginForm() {
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? t("common.loading") : t("loginForm.loginButton")}
+            {form.formState.isSubmitting
+              ? t("common.loading")
+              : t("loginForm.loginButton")}
           </Button>
         </form>
       </Form>
 
       <div className="text-center space-y-2">
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          <Link 
-            href="/reset-password" 
+          <Link
+            href="/reset-password"
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("loginForm.forgotPassword")}
@@ -132,15 +138,14 @@ export function LoginForm() {
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-300">
           {t("loginForm.noAccount")}{" "}
-          <Link 
-            href="/register" 
+          <Link
+            href="/register"
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("loginForm.registerLink")}
           </Link>
         </p>
       </div>
-
     </div>
   );
 }

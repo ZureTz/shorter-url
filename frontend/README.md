@@ -5,6 +5,7 @@ This is the frontend part of the project, built with React, TypeScript, Next.js,
 ## Getting Started
 
 First, run the development server:
+
 ```bash
 bun dev
 ```
@@ -12,9 +13,11 @@ bun dev
 Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application in action.
 
 You may need to use `.env.local` file to set environment variables for your application.
+
 ```bash
 cp .env.local.example .env.local
 ```
+
 Then, modify the `.env.local` file to set your environment variables.
 
 Also, before you start the development server, make sure to enable rewrites in your Next.js configuration. This is necessary for the application to correctly handle API requests. Uncomment the `rewrites` function, and comment out the `output`, `trailingSlash`, and `distDir` options in the `next.config.js` file.
@@ -47,10 +50,10 @@ const nextConfig: NextConfig = {
 };
 ```
 
-
 ## Building for Production
 
-To build the application for production, you need first to rollback the rewrites in the `next.config.js` file to their original state, which is commented out in the development section. 
+To build the application for production, you need first to rollback the rewrites in the `next.config.js` file to their original state, which is commented out in the development section.
+
 ```typescript
 const nextConfig: NextConfig = {
   /* config options here */
@@ -58,7 +61,7 @@ const nextConfig: NextConfig = {
   // Generate static HTML for all pages
   output: "export",
   trailingSlash: true,
-  distDir: 'dist',
+  distDir: "dist",
 
   // async rewrites() {
   //   const backendUrl =
@@ -83,6 +86,7 @@ const nextConfig: NextConfig = {
 Then, you can proceed with the following steps:
 
 1. Generate a production build of the application by running:
+
 ```bash
 bun run build
 ```

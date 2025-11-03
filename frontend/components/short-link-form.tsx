@@ -37,7 +37,7 @@ export function ShortLinkForm() {
           (val.length >= 4 && val.length <= 10 && /^[a-zA-Z0-9]+$/.test(val)),
         {
           message: t("shortLinkForm.customCodeInvalid"),
-        }
+        },
       ),
     duration: z
       .number()
@@ -83,7 +83,9 @@ export function ShortLinkForm() {
         }
 
         toast.success(t("shortLinkForm.createSuccess"), {
-          description: t("shortLinkForm.createSuccessDesc", { shortUrl: result.short_url || result.shortUrl }),
+          description: t("shortLinkForm.createSuccessDesc", {
+            shortUrl: result.short_url || result.shortUrl,
+          }),
         });
 
         form.reset();
@@ -124,7 +126,9 @@ export function ShortLinkForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("shortLinkForm.originalUrlDescription")}</FormDescription>
+                <FormDescription>
+                  {t("shortLinkForm.originalUrlDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -142,7 +146,9 @@ export function ShortLinkForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("shortLinkForm.customCodeDescription")}</FormDescription>
+                <FormDescription>
+                  {t("shortLinkForm.customCodeDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -161,7 +167,7 @@ export function ShortLinkForm() {
                     {...field}
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined
+                        e.target.value ? parseInt(e.target.value) : undefined,
                       )
                     }
                     value={field.value || ""}
@@ -214,9 +220,12 @@ export function ShortLinkForm() {
                 {t("shortLinkForm.expiredAt")}:{" "}
               </span>
               <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                {!shortLinkResult.expiredAt || shortLinkResult.expiredAt === "0001-01-01T00:00:00Z"
+                {!shortLinkResult.expiredAt ||
+                shortLinkResult.expiredAt === "0001-01-01T00:00:00Z"
                   ? t("shortLinkForm.permanent")
-                  : new Date(shortLinkResult.expiredAt).toLocaleString(navigator.language)}
+                  : new Date(shortLinkResult.expiredAt).toLocaleString(
+                      navigator.language,
+                    )}
               </span>
             </div>
           </div>

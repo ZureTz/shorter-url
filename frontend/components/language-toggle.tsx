@@ -17,8 +17,8 @@ export function LanguageToggle() {
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('language', lng);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lng);
     }
   };
 

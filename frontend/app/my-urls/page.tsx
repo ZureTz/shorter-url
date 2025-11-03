@@ -43,16 +43,24 @@ export default function MyUrlsPage() {
       });
 
       if (!response.ok) {
-        throw new Error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }));
+        throw new Error(
+          t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }),
+        );
       }
 
       const data: GetUserShortURLsResponse = await response.json();
       setUrls(data.urls || []);
     } catch (error) {
       console.error("获取短链接列表失败:", error);
-      toast.error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }), {
-        description: error instanceof Error ? error.message : t("common.unknownError", { defaultValue: "未知错误" }),
-      });
+      toast.error(
+        t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }),
+        {
+          description:
+            error instanceof Error
+              ? error.message
+              : t("common.unknownError", { defaultValue: "未知错误" }),
+        },
+      );
     } finally {
       setIsLoading(false);
     }

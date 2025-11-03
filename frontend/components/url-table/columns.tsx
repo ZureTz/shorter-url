@@ -35,7 +35,10 @@ export type Url = {
 };
 
 // 创建列定义的工厂函数，接受翻译函数和刷新回调
-export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Url>[] => [
+export const createColumns = (
+  t: TFunction,
+  onDelete?: () => void,
+): ColumnDef<Url>[] => [
   {
     accessorKey: "short_code",
     header: ({ column }) => {
@@ -230,7 +233,8 @@ export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Ur
             }`}
           >
             {date.toLocaleTimeString(navigator.language)}
-            {isExpired && ` (${t("urlTable.expired", { defaultValue: "Expired" })})`}
+            {isExpired &&
+              ` (${t("urlTable.expired", { defaultValue: "Expired" })})`}
           </div>
         </div>
       );
@@ -269,7 +273,8 @@ export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Ur
         } catch (error) {
           console.error("删除短链接失败:", error);
           toast.error(t("urlTable.deleteError"), {
-            description: error instanceof Error ? error.message : "Unknown error",
+            description:
+              error instanceof Error ? error.message : "Unknown error",
           });
         }
       };
@@ -288,7 +293,9 @@ export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Ur
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{t("urlTable.deleteConfirmTitle")}</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("urlTable.deleteConfirmTitle")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 {t("urlTable.deleteConfirmDesc")}
               </AlertDialogDescription>

@@ -47,7 +47,7 @@ export function MyUrlsTable<TData, TValue>({
   const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -80,7 +80,9 @@ export function MyUrlsTable<TData, TValue>({
         <div className="flex items-center space-x-2 flex-1">
           <Search className="h-4 w-4 text-gray-500" />
           <Input
-            placeholder={t("myUrls.searchPlaceholder", { defaultValue: "搜索原始链接..." })}
+            placeholder={t("myUrls.searchPlaceholder", {
+              defaultValue: "搜索原始链接...",
+            })}
             value={
               (table.getColumn("original_url")?.getFilterValue() as string) ??
               ""
@@ -96,7 +98,8 @@ export function MyUrlsTable<TData, TValue>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full sm:w-auto">
-              {t("myUrls.showColumns", { defaultValue: "显示列" })} <ChevronDown className="ml-2 h-4 w-4" />
+              {t("myUrls.showColumns", { defaultValue: "显示列" })}{" "}
+              <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -137,7 +140,7 @@ export function MyUrlsTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -167,7 +170,7 @@ export function MyUrlsTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -181,10 +184,14 @@ export function MyUrlsTable<TData, TValue>({
                 >
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="text-gray-500 dark:text-gray-400">
-                      {t("myUrls.noLinks", { defaultValue: "还没有创建任何短链接" })}
+                      {t("myUrls.noLinks", {
+                        defaultValue: "还没有创建任何短链接",
+                      })}
                     </div>
                     <div className="text-sm text-gray-400 dark:text-gray-500">
-                      {t("myUrls.createFirst", { defaultValue: "去创建您的第一个短链接吧！" })}
+                      {t("myUrls.createFirst", {
+                        defaultValue: "去创建您的第一个短链接吧！",
+                      })}
                     </div>
                   </div>
                 </TableCell>
@@ -206,12 +213,17 @@ export function MyUrlsTable<TData, TValue>({
             {Math.min(
               (table.getState().pagination.pageIndex + 1) *
                 table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
+              table.getFilteredRowModel().rows.length,
             )}{" "}
-            {t("myUrls.items", { defaultValue: "项" })}，{t("myUrls.total", { defaultValue: "共" })} {table.getFilteredRowModel().rows.length} {t("myUrls.items", { defaultValue: "项" })}
+            {t("myUrls.items", { defaultValue: "项" })}，
+            {t("myUrls.total", { defaultValue: "共" })}{" "}
+            {table.getFilteredRowModel().rows.length}{" "}
+            {t("myUrls.items", { defaultValue: "项" })}
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">{t("myUrls.rowsPerPage", { defaultValue: "每页显示" })}</span>
+            <span className="text-sm text-muted-foreground">
+              {t("myUrls.rowsPerPage", { defaultValue: "每页显示" })}
+            </span>
             <select
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
@@ -225,7 +237,9 @@ export function MyUrlsTable<TData, TValue>({
                 </option>
               ))}
             </select>
-            <span className="text-sm text-muted-foreground">{t("myUrls.items", { defaultValue: "项" })}</span>
+            <span className="text-sm text-muted-foreground">
+              {t("myUrls.items", { defaultValue: "项" })}
+            </span>
           </div>
         </div>
         <div className="flex items-center space-x-2">

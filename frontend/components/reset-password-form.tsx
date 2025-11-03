@@ -27,29 +27,34 @@ export function ResetPasswordForm() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const formSchema = z.object({
-    email: z
-      .string()
-      .min(1, t("resetPasswordForm.emailRequired"))
-      .email(t("resetPasswordForm.emailInvalid")),
-    email_code: z
-      .string()
-      .min(1, t("resetPasswordForm.emailCodeRequired"))
-      .length(6, t("resetPasswordForm.emailCodeLength"))
-      .regex(/^\d{6}$/, t("resetPasswordForm.emailCodeInvalid")),
-    password: z
-      .string()
-      .min(1, t("resetPasswordForm.newPasswordRequired"))
-      .min(6, t("resetPasswordForm.newPasswordMin"))
-      .max(50, t("resetPasswordForm.newPasswordMax"))
-      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("resetPasswordForm.newPasswordInvalid")),
-    confirmed_password: z
-      .string()
-      .min(1, t("resetPasswordForm.confirmedPasswordRequired")),
-  }).refine((data) => data.password === data.confirmed_password, {
-    message: t("resetPasswordForm.passwordMismatch"),
-    path: ["confirmed_password"],
-  });
+  const formSchema = z
+    .object({
+      email: z
+        .string()
+        .min(1, t("resetPasswordForm.emailRequired"))
+        .email(t("resetPasswordForm.emailInvalid")),
+      email_code: z
+        .string()
+        .min(1, t("resetPasswordForm.emailCodeRequired"))
+        .length(6, t("resetPasswordForm.emailCodeLength"))
+        .regex(/^\d{6}$/, t("resetPasswordForm.emailCodeInvalid")),
+      password: z
+        .string()
+        .min(1, t("resetPasswordForm.newPasswordRequired"))
+        .min(6, t("resetPasswordForm.newPasswordMin"))
+        .max(50, t("resetPasswordForm.newPasswordMax"))
+        .regex(
+          /^[a-zA-Z0-9_!@#$%^&*]+$/,
+          t("resetPasswordForm.newPasswordInvalid"),
+        ),
+      confirmed_password: z
+        .string()
+        .min(1, t("resetPasswordForm.confirmedPasswordRequired")),
+    })
+    .refine((data) => data.password === data.confirmed_password, {
+      message: t("resetPasswordForm.passwordMismatch"),
+      path: ["confirmed_password"],
+    });
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,7 +71,7 @@ export function ResetPasswordForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log("提交的重置密码数据:", values);
-      
+
       const response = await fetch("/api/reset_password", {
         method: "PUT",
         headers: {
@@ -100,7 +105,7 @@ export function ResetPasswordForm() {
   // 发送邮箱验证码
   const sendEmailCode = async () => {
     const email = form.getValues("email");
-    
+
     if (!email) {
       toast.error(t("resetPasswordForm.emailRequired"));
       return;
@@ -113,7 +118,7 @@ export function ResetPasswordForm() {
 
     try {
       setIsCodeSending(true);
-      
+
       const response = await fetch("/api/email_code", {
         method: "POST",
         headers: {
@@ -126,7 +131,7 @@ export function ResetPasswordForm() {
 
       if (response.ok) {
         toast.success(t("resetPasswordForm.sendCodeSuccess"));
-        
+
         // 开始倒计时
         setCountdown(60);
         const timer = setInterval(() => {
@@ -170,7 +175,9 @@ export function ResetPasswordForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("resetPasswordForm.emailDescription")}</FormDescription>
+                <FormDescription>
+                  {t("resetPasswordForm.emailDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -196,15 +203,16 @@ export function ResetPasswordForm() {
                     disabled={isCodeSending || countdown > 0}
                     className="whitespace-nowrap"
                   >
-                    {isCodeSending 
+                    {isCodeSending
                       ? t("common.loading")
-                      : countdown > 0 
-                      ? `${countdown}s ${t("resetPasswordForm.resendCode")}`
-                      : t("resetPasswordForm.sendCodeButton")
-                    }
+                      : countdown > 0
+                        ? `${countdown}s ${t("resetPasswordForm.resendCode")}`
+                        : t("resetPasswordForm.sendCodeButton")}
                   </Button>
                 </div>
-                <FormDescription>{t("resetPasswordForm.emailCodeDescription")}</FormDescription>
+                <FormDescription>
+                  {t("resetPasswordForm.emailCodeDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -223,7 +231,9 @@ export function ResetPasswordForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("resetPasswordForm.newPasswordDescription")}</FormDescription>
+                <FormDescription>
+                  {t("resetPasswordForm.newPasswordDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -234,15 +244,21 @@ export function ResetPasswordForm() {
             name="confirmed_password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("resetPasswordForm.confirmedPassword")}</FormLabel>
+                <FormLabel>
+                  {t("resetPasswordForm.confirmedPassword")}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder={t("resetPasswordForm.confirmedPasswordPlaceholder")}
+                    placeholder={t(
+                      "resetPasswordForm.confirmedPasswordPlaceholder",
+                    )}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("resetPasswordForm.confirmedPasswordDescription")}</FormDescription>
+                <FormDescription>
+                  {t("resetPasswordForm.confirmedPasswordDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -253,15 +269,17 @@ export function ResetPasswordForm() {
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? t("common.loading") : t("resetPasswordForm.resetButton")}
+            {form.formState.isSubmitting
+              ? t("common.loading")
+              : t("resetPasswordForm.resetButton")}
           </Button>
         </form>
       </Form>
 
       <div className="text-center space-y-2">
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          <Link 
-            href="/login" 
+          <Link
+            href="/login"
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("resetPasswordForm.backToLogin")}
@@ -269,15 +287,14 @@ export function ResetPasswordForm() {
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-300">
           {t("loginForm.noAccount")}{" "}
-          <Link 
-            href="/register" 
+          <Link
+            href="/register"
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("loginForm.registerLink")}
           </Link>
         </p>
       </div>
-
     </div>
   );
 }

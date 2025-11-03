@@ -27,35 +27,37 @@ export function RegisterForm() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const formSchema = z.object({
-    username: z
-      .string()
-      .min(1, t("registerForm.usernameRequired"))
-      .min(3, t("registerForm.usernameMin"))
-      .max(20, t("registerForm.usernameMax"))
-      .regex(/^[a-zA-Z0-9_]+$/, t("registerForm.usernameInvalid")),
-    password: z
-      .string()
-      .min(1, t("registerForm.passwordRequired"))
-      .min(6, t("registerForm.passwordMin"))
-      .max(50, t("registerForm.passwordMax"))
-      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("registerForm.passwordInvalid")),
-    confirmed_password: z
-      .string()
-      .min(1, t("registerForm.confirmedPasswordRequired")),
-    email: z
-      .string()
-      .min(1, t("registerForm.emailRequired"))
-      .email(t("registerForm.emailInvalid")),
-    email_code: z
-      .string()
-      .min(1, t("registerForm.emailCodeRequired"))
-      .length(6, t("registerForm.emailCodeLength"))
-      .regex(/^\d{6}$/, t("registerForm.emailCodeInvalid")),
-  }).refine((data) => data.password === data.confirmed_password, {
-    message: t("registerForm.passwordMismatch"),
-    path: ["confirmed_password"],
-  });
+  const formSchema = z
+    .object({
+      username: z
+        .string()
+        .min(1, t("registerForm.usernameRequired"))
+        .min(3, t("registerForm.usernameMin"))
+        .max(20, t("registerForm.usernameMax"))
+        .regex(/^[a-zA-Z0-9_]+$/, t("registerForm.usernameInvalid")),
+      password: z
+        .string()
+        .min(1, t("registerForm.passwordRequired"))
+        .min(6, t("registerForm.passwordMin"))
+        .max(50, t("registerForm.passwordMax"))
+        .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("registerForm.passwordInvalid")),
+      confirmed_password: z
+        .string()
+        .min(1, t("registerForm.confirmedPasswordRequired")),
+      email: z
+        .string()
+        .min(1, t("registerForm.emailRequired"))
+        .email(t("registerForm.emailInvalid")),
+      email_code: z
+        .string()
+        .min(1, t("registerForm.emailCodeRequired"))
+        .length(6, t("registerForm.emailCodeLength"))
+        .regex(/^\d{6}$/, t("registerForm.emailCodeInvalid")),
+    })
+    .refine((data) => data.password === data.confirmed_password, {
+      message: t("registerForm.passwordMismatch"),
+      path: ["confirmed_password"],
+    });
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -105,7 +107,7 @@ export function RegisterForm() {
   // 发送邮箱验证码
   const sendEmailCode = async () => {
     const email = form.getValues("email");
-    
+
     if (!email) {
       toast.error(t("registerForm.emailRequired"));
       return;
@@ -118,7 +120,7 @@ export function RegisterForm() {
 
     try {
       setIsCodeSending(true);
-      
+
       const response = await fetch("/api/email_code", {
         method: "POST",
         headers: {
@@ -131,7 +133,7 @@ export function RegisterForm() {
 
       if (response.ok) {
         toast.success(t("registerForm.sendCodeSuccess"));
-        
+
         // 开始倒计时
         setCountdown(60);
         const timer = setInterval(() => {
@@ -174,7 +176,9 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("registerForm.usernameDescription")}</FormDescription>
+                <FormDescription>
+                  {t("registerForm.usernameDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -193,7 +197,9 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("registerForm.passwordDescription")}</FormDescription>
+                <FormDescription>
+                  {t("registerForm.passwordDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -212,7 +218,9 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("registerForm.confirmedPasswordDescription")}</FormDescription>
+                <FormDescription>
+                  {t("registerForm.confirmedPasswordDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -231,7 +239,9 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{t("registerForm.emailDescription")}</FormDescription>
+                <FormDescription>
+                  {t("registerForm.emailDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -257,15 +267,16 @@ export function RegisterForm() {
                     disabled={isCodeSending || countdown > 0}
                     className="whitespace-nowrap"
                   >
-                    {isCodeSending 
+                    {isCodeSending
                       ? t("common.loading")
-                      : countdown > 0 
-                      ? `${countdown}s ${t("registerForm.resendCode")}`
-                      : t("registerForm.sendCodeButton")
-                    }
+                      : countdown > 0
+                        ? `${countdown}s ${t("registerForm.resendCode")}`
+                        : t("registerForm.sendCodeButton")}
                   </Button>
                 </div>
-                <FormDescription>{t("registerForm.emailCodeDescription")}</FormDescription>
+                <FormDescription>
+                  {t("registerForm.emailCodeDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -276,7 +287,9 @@ export function RegisterForm() {
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? t("common.loading") : t("registerForm.registerButton")}
+            {form.formState.isSubmitting
+              ? t("common.loading")
+              : t("registerForm.registerButton")}
           </Button>
         </form>
       </Form>
@@ -284,15 +297,14 @@ export function RegisterForm() {
       <div className="text-center">
         <p className="text-sm text-gray-600 dark:text-gray-300">
           {t("registerForm.hasAccount")}{" "}
-          <Link 
-            href="/login" 
+          <Link
+            href="/login"
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("registerForm.loginLink")}
           </Link>
         </p>
       </div>
-
     </div>
   );
 }
