@@ -1,26 +1,55 @@
+"use client";
+
+import { Toaster } from "sonner";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
+
 import { ThemeProvider } from "@/components/theme-provider";
 import { LayoutContent } from "@/components/layout-content";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/protected-route";
-import { Toaster } from "sonner";
-import type { Metadata } from "next";
 
+import "@/i18n/i18n";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "短链接生成器 - 简单、快速、安全",
-  description: "免费的短链接生成服务，支持自定义链接、过期时间设置，帮您创建简洁易记的短链接",
-  keywords: "短链接,URL缩短,链接生成器,自定义链接",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    // 更新文档标题和元数据
+    document.title = t("metadata.title");
+
+    // 更新或创建 meta 标签
+    const updateMetaTag = (name: string, content: string) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("name", name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", content);
+    };
+
+    updateMetaTag("description", t("metadata.description"));
+    updateMetaTag("keywords", t("metadata.keywords"));
+
+    // 更新 html lang 属性
+    document.documentElement.lang = i18n.language === "zh" ? "zh-CN" : "en";
+  }, [t, i18n.language]);
+
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <head />
+    <html
+      lang={i18n.language === "zh" ? "zh-CN" : "en"}
+      suppressHydrationWarning
+    >
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body>
         <ThemeProvider
           attribute="class"

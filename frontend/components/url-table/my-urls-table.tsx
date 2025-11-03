@@ -14,6 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ export function MyUrlsTable<TData, TValue>({
   data,
   isLoading = false,
 }: DataTableProps<TData, TValue>) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -78,7 +80,7 @@ export function MyUrlsTable<TData, TValue>({
         <div className="flex items-center space-x-2 flex-1">
           <Search className="h-4 w-4 text-gray-500" />
           <Input
-            placeholder="搜索原始链接..."
+            placeholder={t("myUrls.searchPlaceholder", { defaultValue: "搜索原始链接..." })}
             value={
               (table.getColumn("original_url")?.getFilterValue() as string) ??
               ""
@@ -94,7 +96,7 @@ export function MyUrlsTable<TData, TValue>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full sm:w-auto">
-              显示列 <ChevronDown className="ml-2 h-4 w-4" />
+              {t("myUrls.showColumns", { defaultValue: "显示列" })} <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -111,12 +113,12 @@ export function MyUrlsTable<TData, TValue>({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id === "short_code" && "短代码"}
-                    {column.id === "original_url" && "原始链接"}
-                    {column.id === "is_custom" && "类型"}
-                    {column.id === "created_at" && "创建时间"}
-                    {column.id === "expired_at" && "过期时间"}
-                    {column.id === "actions" && "操作"}
+                    {column.id === "short_code" && t("urlTable.shortCode")}
+                    {column.id === "original_url" && t("urlTable.originalUrl")}
+                    {column.id === "is_custom" && t("urlTable.isCustom")}
+                    {column.id === "created_at" && t("urlTable.createdAt")}
+                    {column.id === "expired_at" && t("urlTable.expiredAt")}
+                    {column.id === "actions" && t("urlTable.actions")}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -179,10 +181,10 @@ export function MyUrlsTable<TData, TValue>({
                 >
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="text-gray-500 dark:text-gray-400">
-                      还没有创建任何短链接
+                      {t("myUrls.noLinks", { defaultValue: "还没有创建任何短链接" })}
                     </div>
                     <div className="text-sm text-gray-400 dark:text-gray-500">
-                      去创建您的第一个短链接吧！
+                      {t("myUrls.createFirst", { defaultValue: "去创建您的第一个短链接吧！" })}
                     </div>
                   </div>
                 </TableCell>
@@ -196,20 +198,20 @@ export function MyUrlsTable<TData, TValue>({
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex items-center space-x-2">
           <div className="flex-1 text-sm text-muted-foreground">
-            显示第{" "}
+            {t("myUrls.showing", { defaultValue: "显示第" })}{" "}
             {table.getState().pagination.pageIndex *
               table.getState().pagination.pageSize +
               1}{" "}
-            到{" "}
+            {t("myUrls.to", { defaultValue: "到" })}{" "}
             {Math.min(
               (table.getState().pagination.pageIndex + 1) *
                 table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{" "}
-            项，共 {table.getFilteredRowModel().rows.length} 项
+            {t("myUrls.items", { defaultValue: "项" })}，{t("myUrls.total", { defaultValue: "共" })} {table.getFilteredRowModel().rows.length} {t("myUrls.items", { defaultValue: "项" })}
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">每页显示</span>
+            <span className="text-sm text-muted-foreground">{t("myUrls.rowsPerPage", { defaultValue: "每页显示" })}</span>
             <select
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
@@ -223,7 +225,7 @@ export function MyUrlsTable<TData, TValue>({
                 </option>
               ))}
             </select>
-            <span className="text-sm text-muted-foreground">项</span>
+            <span className="text-sm text-muted-foreground">{t("myUrls.items", { defaultValue: "项" })}</span>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -233,7 +235,7 @@ export function MyUrlsTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            上一页
+            {t("myUrls.previous", { defaultValue: "上一页" })}
           </Button>
           <Button
             variant="outline"
@@ -241,7 +243,7 @@ export function MyUrlsTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            下一页
+            {t("myUrls.next", { defaultValue: "下一页" })}
           </Button>
         </div>
       </div>

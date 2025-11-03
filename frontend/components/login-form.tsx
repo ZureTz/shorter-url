@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -19,23 +20,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(1, "用户名不能为空")
-    .min(3, "用户名至少需要3个字符")
-    .max(20, "用户名不能超过20个字符")
-    .regex(/^[a-zA-Z0-9_]+$/, "用户名只能包含字母、数字和下划线"),
-  password: z
-    .string()
-    .min(1, "密码不能为空")
-    .min(6, "密码至少需要6个字符")
-    .max(50, "密码不能超过50个字符")
-    .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, "密码只能包含字母、数字、下划线和特殊字符"),
-});
-
 export function LoginForm() {
   const { login } = useAuth();
+  const { t } = useTranslation();
+
+  const formSchema = z.object({
+    username: z
+      .string()
+      .min(1, t("loginForm.usernameRequired"))
+      .min(3, t("loginForm.usernameMin"))
+      .max(20, t("loginForm.usernameMax"))
+      .regex(/^[a-zA-Z0-9_]+$/, t("loginForm.usernameInvalid")),
+    password: z
+      .string()
+      .min(1, t("loginForm.passwordRequired"))
+      .min(6, t("loginForm.passwordMin"))
+      .max(50, t("loginForm.passwordMax"))
+      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("loginForm.passwordInvalid")),
+  });
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,19 +53,19 @@ export function LoginForm() {
     try {
       const success = await login(values.username, values.password);
       if (success) {
-        toast.success("登录成功！", {
-          description: "正在跳转到主页...",
+        toast.success(t("loginForm.loginSuccess"), {
+          description: t("loginForm.loginSuccessDesc"),
         });
         // 登录成功后，路由会自动重定向
       } else {
-        toast.error("登录失败", {
-          description: "请检查用户名和密码是否正确",
+        toast.error(t("loginForm.loginError"), {
+          description: t("loginForm.loginErrorDesc"),
         });
       }
     } catch (error) {
       console.error("登录失败:", error);
-      toast.error("登录过程中出现错误", {
-        description: error instanceof Error ? error.message : "未知错误",
+      toast.error(t("loginForm.loginException"), {
+        description: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -77,14 +79,14 @@ export function LoginForm() {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>用户名</FormLabel>
+                <FormLabel>{t("loginForm.username")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="请输入用户名"
+                    placeholder={t("loginForm.usernamePlaceholder")}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>请输入您的用户名</FormDescription>
+                <FormDescription>{t("loginForm.usernameDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -95,15 +97,15 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>密码</FormLabel>
+                <FormLabel>{t("loginForm.password")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="请输入密码"
+                    placeholder={t("loginForm.passwordPlaceholder")}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>请输入您的密码</FormDescription>
+                <FormDescription>{t("loginForm.passwordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -114,7 +116,7 @@ export function LoginForm() {
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "登录中..." : "登录"}
+            {form.formState.isSubmitting ? t("common.loading") : t("loginForm.loginButton")}
           </Button>
         </form>
       </Form>
@@ -125,16 +127,16 @@ export function LoginForm() {
             href="/reset-password" 
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
-            忘记密码？
+            {t("loginForm.forgotPassword")}
           </Link>
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          还没有账号？{" "}
+          {t("loginForm.noAccount")}{" "}
           <Link 
             href="/register" 
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
-            立即注册
+            {t("loginForm.registerLink")}
           </Link>
         </p>
       </div>

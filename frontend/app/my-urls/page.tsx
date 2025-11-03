@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useTranslation } from "react-i18next";
 import { MyUrlsTable } from "@/components/url-table/my-urls-table";
 import { createColumns, type Url } from "@/components/url-table/columns";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ interface GetUserShortURLsResponse {
 
 export default function MyUrlsPage() {
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [urls, setUrls] = useState<Url[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,20 +43,20 @@ export default function MyUrlsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("获取短链接列表失败");
+        throw new Error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }));
       }
 
       const data: GetUserShortURLsResponse = await response.json();
       setUrls(data.urls || []);
     } catch (error) {
       console.error("获取短链接列表失败:", error);
-      toast.error("获取短链接列表失败", {
-        description: error instanceof Error ? error.message : "未知错误",
+      toast.error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }), {
+        description: error instanceof Error ? error.message : t("common.unknownError", { defaultValue: "未知错误" }),
       });
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, t]);
 
   useEffect(() => {
     fetchUrls();
@@ -62,11 +64,11 @@ export default function MyUrlsPage() {
 
   const handleRefresh = () => {
     fetchUrls();
-    toast.success("数据已刷新");
+    toast.success(t("myUrls.refreshSuccess", { defaultValue: "数据已刷新" }));
   };
 
   // 创建带刷新功能的列定义
-  const columns = useMemo(() => createColumns(fetchUrls), [fetchUrls]);
+  const columns = useMemo(() => createColumns(t, fetchUrls), [t, fetchUrls]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,10 +77,10 @@ export default function MyUrlsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              你好 {user ? `, ${user.username} !` : ""}
+              {t("myUrls.greetings")} {user ? `, ${user.username}!` : ""}
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              这里是您创建的短链接列表，您可以在这里查看、管理和创建新的短链接。
+              {t("myUrls.subtitle")}
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -91,12 +93,12 @@ export default function MyUrlsPage() {
               <RefreshCw
                 className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
               />
-              <span>刷新</span>
+              <span>{t("myUrls.refresh", { defaultValue: "刷新" })}</span>
             </Button>
             <Link href="/">
               <Button className="flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>创建短链接</span>
+                <span>{t("nav.createShortLink")}</span>
               </Button>
             </Link>
           </div>
@@ -109,7 +111,7 @@ export default function MyUrlsPage() {
               {urls.length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              当前总链接数
+              {t("myUrls.totalLinks", { defaultValue: "当前总链接数" })}
             </div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
@@ -123,7 +125,7 @@ export default function MyUrlsPage() {
               }
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              当前有效链接
+              {t("myUrls.activeLinks", { defaultValue: "当前有效链接" })}
             </div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
@@ -131,7 +133,7 @@ export default function MyUrlsPage() {
               {urls.filter((url) => url.is_custom).length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              当前自定义链接
+              {t("myUrls.customLinks", { defaultValue: "当前自定义链接" })}
             </div>
           </div>
         </div>

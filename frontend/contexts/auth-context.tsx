@@ -9,7 +9,7 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user?: User;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -19,7 +19,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // 初始加载时检查认证状态
@@ -38,9 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 解析本地用户数据
-      const userData: User = JSON.parse(storedUserData);
-
       // 验证本地数据是否仍然有效（调用后端验证）
       const response = await fetch("/api/user/test_auth", {
         method: "GET",
@@ -51,23 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         // 认证仍然有效，使用本地数据
-        setUser(userData);
+        setIsAuthenticated(true);
+        setUser(JSON.parse(storedUserData));
       } else {
-        // 认证已失效，清除本地数据
+        // 认证已失效
         throw new Error("认证已失效");
       }
-
     } catch (error) {
       console.error("检查认证状态失败:", error);
       // 认证失败，清除本地数据
-      localStorage.removeItem("user_data");
-      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
   };
-
-
 
   const login = async (
     username: string,
@@ -97,9 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       localStorage.setItem("user_data", JSON.stringify(userData));
+      setIsAuthenticated(true);
       setUser(userData);
       return true;
-
     } catch (error) {
       console.error("登录失败:", error);
       return false;
@@ -111,7 +106,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     // 清除前端状态
     localStorage.removeItem("user_data");
-    setUser(null);
+    setUser(undefined);
+    setIsAuthenticated(false);
   };
 
   const value: AuthContextType = {
@@ -119,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     login,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

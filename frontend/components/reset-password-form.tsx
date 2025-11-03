@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -20,34 +21,35 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, "邮箱不能为空")
-    .email("请输入有效的邮箱地址"),
-  email_code: z
-    .string()
-    .min(1, "验证码不能为空")
-    .length(6, "验证码必须是6位数字")
-    .regex(/^\d{6}$/, "验证码只能包含数字"),
-  password: z
-    .string()
-    .min(1, "密码不能为空")
-    .min(6, "密码至少需要6个字符")
-    .max(50, "密码不能超过50个字符")
-    .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, "密码只能包含字母、数字、下划线和特殊字符"),
-  confirmed_password: z
-    .string()
-    .min(1, "确认密码不能为空"),
-}).refine((data) => data.password === data.confirmed_password, {
-  message: "两次输入的密码不一致",
-  path: ["confirmed_password"],
-});
-
 export function ResetPasswordForm() {
   const [isCodeSending, setIsCodeSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const formSchema = z.object({
+    email: z
+      .string()
+      .min(1, t("resetPasswordForm.emailRequired"))
+      .email(t("resetPasswordForm.emailInvalid")),
+    email_code: z
+      .string()
+      .min(1, t("resetPasswordForm.emailCodeRequired"))
+      .length(6, t("resetPasswordForm.emailCodeLength"))
+      .regex(/^\d{6}$/, t("resetPasswordForm.emailCodeInvalid")),
+    password: z
+      .string()
+      .min(1, t("resetPasswordForm.newPasswordRequired"))
+      .min(6, t("resetPasswordForm.newPasswordMin"))
+      .max(50, t("resetPasswordForm.newPasswordMax"))
+      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("resetPasswordForm.newPasswordInvalid")),
+    confirmed_password: z
+      .string()
+      .min(1, t("resetPasswordForm.confirmedPasswordRequired")),
+  }).refine((data) => data.password === data.confirmed_password, {
+    message: t("resetPasswordForm.passwordMismatch"),
+    path: ["confirmed_password"],
+  });
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,21 +78,21 @@ export function ResetPasswordForm() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("密码重置成功！", {
-          description: "请使用新密码登录",
+        toast.success(t("resetPasswordForm.resetSuccess"), {
+          description: t("resetPasswordForm.resetSuccessDesc"),
         });
         form.reset();
         // 重置成功后跳转到登录页面
         router.push("/login");
       } else {
-        toast.error("密码重置失败", {
-          description: data.message || "请检查输入信息是否正确",
+        toast.error(t("resetPasswordForm.resetError"), {
+          description: data.message || t("resetPasswordForm.resetErrorDesc"),
         });
       }
     } catch (error) {
       console.error("密码重置失败:", error);
-      toast.error("密码重置过程中出现错误", {
-        description: error instanceof Error ? error.message : "未知错误",
+      toast.error(t("resetPasswordForm.resetException"), {
+        description: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -100,12 +102,12 @@ export function ResetPasswordForm() {
     const email = form.getValues("email");
     
     if (!email) {
-      toast.error("请先输入邮箱地址");
+      toast.error(t("resetPasswordForm.emailRequired"));
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("请输入有效的邮箱地址");
+      toast.error(t("resetPasswordForm.emailInvalid"));
       return;
     }
 
@@ -123,9 +125,7 @@ export function ResetPasswordForm() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("验证码发送成功！", {
-          description: "请查看您的邮箱",
-        });
+        toast.success(t("resetPasswordForm.sendCodeSuccess"));
         
         // 开始倒计时
         setCountdown(60);
@@ -139,14 +139,14 @@ export function ResetPasswordForm() {
           });
         }, 1000);
       } else {
-        toast.error("发送验证码失败", {
-          description: data.message || "请稍后重试",
+        toast.error(t("resetPasswordForm.sendCodeError"), {
+          description: data.message,
         });
       }
     } catch (error) {
       console.error("发送验证码失败:", error);
-      toast.error("发送验证码失败", {
-        description: "网络错误，请稍后重试",
+      toast.error(t("resetPasswordForm.sendCodeError"), {
+        description: error instanceof Error ? error.message : "Network error",
       });
     } finally {
       setIsCodeSending(false);
@@ -162,15 +162,15 @@ export function ResetPasswordForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>邮箱</FormLabel>
+                <FormLabel>{t("resetPasswordForm.email")}</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="请输入您的邮箱地址"
+                    placeholder={t("resetPasswordForm.emailPlaceholder")}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>请输入您注册时使用的邮箱地址</FormDescription>
+                <FormDescription>{t("resetPasswordForm.emailDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -181,11 +181,11 @@ export function ResetPasswordForm() {
             name="email_code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>邮箱验证码</FormLabel>
+                <FormLabel>{t("resetPasswordForm.emailCode")}</FormLabel>
                 <div className="flex gap-2">
                   <FormControl>
                     <Input
-                      placeholder="请输入6位验证码"
+                      placeholder={t("resetPasswordForm.emailCodePlaceholder")}
                       {...field}
                     />
                   </FormControl>
@@ -197,14 +197,14 @@ export function ResetPasswordForm() {
                     className="whitespace-nowrap"
                   >
                     {isCodeSending 
-                      ? "发送中..." 
+                      ? t("common.loading")
                       : countdown > 0 
-                      ? `${countdown}秒后重试` 
-                      : "发送验证码"
+                      ? `${countdown}s ${t("resetPasswordForm.resendCode")}`
+                      : t("resetPasswordForm.sendCodeButton")
                     }
                   </Button>
                 </div>
-                <FormDescription>点击发送验证码按钮获取邮箱验证码</FormDescription>
+                <FormDescription>{t("resetPasswordForm.emailCodeDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -215,15 +215,15 @@ export function ResetPasswordForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>新密码</FormLabel>
+                <FormLabel>{t("resetPasswordForm.newPassword")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="请输入新密码"
+                    placeholder={t("resetPasswordForm.newPasswordPlaceholder")}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>6-50个字符，可包含字母、数字、下划线和特殊字符</FormDescription>
+                <FormDescription>{t("resetPasswordForm.newPasswordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -234,15 +234,15 @@ export function ResetPasswordForm() {
             name="confirmed_password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>确认新密码</FormLabel>
+                <FormLabel>{t("resetPasswordForm.confirmedPassword")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="请再次输入新密码"
+                    placeholder={t("resetPasswordForm.confirmedPasswordPlaceholder")}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>请再次输入上面的新密码</FormDescription>
+                <FormDescription>{t("resetPasswordForm.confirmedPasswordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -253,28 +253,27 @@ export function ResetPasswordForm() {
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "重置中..." : "重置密码"}
+            {form.formState.isSubmitting ? t("common.loading") : t("resetPasswordForm.resetButton")}
           </Button>
         </form>
       </Form>
 
       <div className="text-center space-y-2">
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          想起密码了？{" "}
           <Link 
             href="/login" 
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
-            返回登录
+            {t("resetPasswordForm.backToLogin")}
           </Link>
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          还没有账号？{" "}
+          {t("loginForm.noAccount")}{" "}
           <Link 
             href="/register" 
             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
-            立即注册
+            {t("loginForm.registerLink")}
           </Link>
         </p>
       </div>

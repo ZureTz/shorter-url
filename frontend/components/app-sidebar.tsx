@@ -1,4 +1,7 @@
+"use client";
+
 import { Home, Inbox, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Sidebar,
   SidebarContent,
@@ -12,21 +15,23 @@ import {
 } from "@/components/ui/sidebar";
 
 import { ModeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { useAuth } from "@/contexts/auth-context";
 
 export function AppSidebar() {
   const { logout } = useAuth();
+  const { t } = useTranslation();
 
   // Menu items
   const appItems = [
     // Application menu items.
     {
-      title: "创建短链接",
+      title: t("nav.createShortLink"),
       url: "/",
       icon: Home,
     },
     {
-      title: "我的短链接",
+      title: t("nav.myShortLinks"),
       url: "/my-urls",
       icon: Inbox,
     },
@@ -35,7 +40,7 @@ export function AppSidebar() {
   const userManagementItems = [
     // User management menu items
     {
-      title: "退出登录",
+      title: t("nav.logout"),
       url: "#",
       icon: LogOut,
       action: logout,
@@ -46,7 +51,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.application")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {appItems.map((item) => (
@@ -65,7 +70,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           {/* User logout */}
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.account")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {userManagementItems.map((item) => (
@@ -84,7 +89,8 @@ export function AppSidebar() {
 
         {/* Foot fixed at the bottom */}
         <SidebarFooter className="mt-auto">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <LanguageToggle />
             <ModeToggle />
           </div>
         </SidebarFooter>

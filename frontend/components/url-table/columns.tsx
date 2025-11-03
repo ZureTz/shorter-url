@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Copy, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { TFunction } from "i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,8 +34,8 @@ export type Url = {
   } | null;
 };
 
-// 创建列定义的工厂函数，接受刷新回调
-export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
+// 创建列定义的工厂函数，接受翻译函数和刷新回调
+export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Url>[] => [
   {
     accessorKey: "short_code",
     header: ({ column }) => {
@@ -44,7 +45,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-8 px-2"
         >
-          短代码
+          {t("urlTable.shortCode")}
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -63,7 +64,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
             size="sm"
             onClick={() => {
               navigator.clipboard.writeText(shortUrl);
-              toast.success("短链接已复制到剪贴板");
+              toast.success(t("urlTable.copied"));
             }}
             className="h-6 w-6 p-0"
           >
@@ -90,7 +91,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-8 px-2"
         >
-          原始链接
+          {t("urlTable.originalUrl")}
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -114,7 +115,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
             size="sm"
             onClick={() => {
               navigator.clipboard.writeText(originalUrl);
-              toast.success("原始链接已复制到剪贴板");
+              toast.success(t("urlTable.copied"));
             }}
             className="h-6 w-6 p-0 flex-shrink-0"
           >
@@ -126,7 +127,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
   },
   {
     accessorKey: "is_custom",
-    header: "类型",
+    header: t("urlTable.isCustom"),
     cell: ({ row }) => {
       const isCustom = row.getValue("is_custom") as boolean;
 
@@ -138,7 +139,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
               : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
           }`}
         >
-          {isCustom ? "自定义" : "系统生成"}
+          {isCustom ? t("urlTable.yes") : t("urlTable.no")}
         </span>
       );
     },
@@ -152,7 +153,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-8 px-2"
         >
-          创建时间
+          {t("urlTable.createdAt")}
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -180,7 +181,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-8 px-2"
         >
-          过期时间
+          {t("urlTable.expiredAt")}
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -207,7 +208,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
       if (!expiredAt || !expiredAt.Valid) {
         return (
           <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
-            永不过期
+            {t("urlTable.permanent")}
           </span>
         );
       }
@@ -229,7 +230,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
             }`}
           >
             {date.toLocaleTimeString(navigator.language)}
-            {isExpired && " (已过期)"}
+            {isExpired && ` (${t("urlTable.expired", { defaultValue: "Expired" })})`}
           </div>
         </div>
       );
@@ -237,7 +238,7 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
   },
   {
     id: "actions",
-    header: "操作",
+    header: t("urlTable.actions"),
     cell: ({ row }) => {
       const url = row.original;
 
@@ -256,12 +257,10 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "删除失败");
+            throw new Error(errorData.message || t("urlTable.deleteError"));
           }
 
-          toast.success("短链接已删除", {
-            description: `短链接 "${url.short_code}" 已成功删除`,
-          });
+          toast.success(t("urlTable.deleteSuccess"));
 
           // 调用刷新回调
           if (onDelete) {
@@ -269,8 +268,8 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           }
         } catch (error) {
           console.error("删除短链接失败:", error);
-          toast.error("删除失败", {
-            description: error instanceof Error ? error.message : "未知错误",
+          toast.error(t("urlTable.deleteError"), {
+            description: error instanceof Error ? error.message : "Unknown error",
           });
         }
       };
@@ -289,24 +288,18 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>确认删除</AlertDialogTitle>
+              <AlertDialogTitle>{t("urlTable.deleteConfirmTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                确定要删除短链接{" "}
-                <code className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono">
-                  {url.short_code}
-                </code>{" "}
-                吗？
-                <br />
-                此操作不可恢复，删除后将无法通过此短链接访问原始URL。
+                {t("urlTable.deleteConfirmDesc")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
                 className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
               >
-                确认删除
+                {t("common.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -315,6 +308,3 @@ export const createColumns = (onDelete?: () => void): ColumnDef<Url>[] => [
     },
   },
 ];
-
-// 默认导出不带刷新功能的列定义（向后兼容）
-export const columns = createColumns();
