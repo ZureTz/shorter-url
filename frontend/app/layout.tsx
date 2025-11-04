@@ -20,6 +20,16 @@ export default function RootLayout({
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
+    // 检测localStorage中的语言设置
+    const storedLanguage = localStorage.getItem("language");
+    if (storedLanguage) {
+      i18n.changeLanguage(storedLanguage).catch((err) => {
+        console.error("Error changing language:", err);
+      });
+    }
+  }, [i18n]);
+
+  useEffect(() => {
     // 更新文档标题和元数据
     document.title = t("metadata.title");
 

@@ -19,10 +19,7 @@ i18n
   .use(initReactI18next) // 传递 i18n 实例到 react-i18next
   .init({
     resources,
-    lng:
-      typeof window !== "undefined"
-        ? localStorage.getItem("language") || navigator.language
-        : "en", // 默认语言
+    lng: navigator.language, // 默认语言
     fallbackLng: "en", // 备用语言
     interpolation: {
       escapeValue: false, // React 已经安全地处理了 XSS
