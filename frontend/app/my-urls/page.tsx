@@ -32,35 +32,30 @@ export default function MyUrlsPage() {
       // 获取所有数据，不再使用后端分页
       const params = new URLSearchParams({
         page: "1",
-        per_page: "1000", // 获取更多数据，让前端表格处理分页
+        per_page: "1000" // 获取更多数据，让前端表格处理分页
       });
 
       const response = await fetch(`/api/user/my_urls?${params.toString()}`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
 
       if (!response.ok) {
-        throw new Error(
-          t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }),
-        );
+        throw new Error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }));
       }
 
       const data: GetUserShortURLsResponse = await response.json();
       setUrls(data.urls || []);
     } catch (error) {
       console.error("获取短链接列表失败:", error);
-      toast.error(
-        t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }),
-        {
-          description:
-            error instanceof Error
-              ? error.message
-              : t("common.unknownError", { defaultValue: "未知错误" }),
-        },
-      );
+      toast.error(t("myUrls.fetchError", { defaultValue: "获取短链接列表失败" }), {
+        description:
+          error instanceof Error
+            ? error.message
+            : t("common.unknownError", { defaultValue: "未知错误" })
+      });
     } finally {
       setIsLoading(false);
     }
@@ -87,9 +82,7 @@ export default function MyUrlsPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {t("myUrls.greetings")} {user ? `, ${user.username}!` : ""}
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              {t("myUrls.subtitle")}
-            </p>
+            <p className="text-gray-600 dark:text-gray-300">{t("myUrls.subtitle")}</p>
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -98,9 +91,7 @@ export default function MyUrlsPage() {
               disabled={isLoading}
               className="flex items-center space-x-2"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
               <span>{t("myUrls.refresh", { defaultValue: "刷新" })}</span>
             </Button>
             <Link href="/">
@@ -115,9 +106,7 @@ export default function MyUrlsPage() {
         {/* 统计信息 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {urls.length}
-            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{urls.length}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {t("myUrls.totalLinks", { defaultValue: "当前总链接数" })}
             </div>
@@ -126,9 +115,7 @@ export default function MyUrlsPage() {
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {
                 urls.filter(
-                  (url) =>
-                    !url.expired_at?.Valid ||
-                    new Date(url.expired_at.Time) > new Date(),
+                  (url) => !url.expired_at?.Valid || new Date(url.expired_at.Time) > new Date()
                 ).length
               }
             </div>

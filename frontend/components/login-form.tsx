@@ -16,7 +16,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
@@ -36,7 +36,7 @@ export function LoginForm() {
       .min(1, t("loginForm.passwordRequired"))
       .min(6, t("loginForm.passwordMin"))
       .max(50, t("loginForm.passwordMax"))
-      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("loginForm.passwordInvalid")),
+      .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("loginForm.passwordInvalid"))
   });
 
   // 1. Define your form.
@@ -44,8 +44,8 @@ export function LoginForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      password: "",
-    },
+      password: ""
+    }
   });
 
   // 2. Define a submit handler.
@@ -54,18 +54,18 @@ export function LoginForm() {
       const success = await login(values.username, values.password);
       if (success) {
         toast.success(t("loginForm.loginSuccess"), {
-          description: t("loginForm.loginSuccessDesc"),
+          description: t("loginForm.loginSuccessDesc")
         });
         // 登录成功后，路由会自动重定向
       } else {
         toast.error(t("loginForm.loginError"), {
-          description: t("loginForm.loginErrorDesc"),
+          description: t("loginForm.loginErrorDesc")
         });
       }
     } catch (error) {
       console.error("登录失败:", error);
       toast.error(t("loginForm.loginException"), {
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: error instanceof Error ? error.message : "Unknown error"
       });
     }
   }
@@ -81,14 +81,9 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>{t("loginForm.username")}</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder={t("loginForm.usernamePlaceholder")}
-                    {...field}
-                  />
+                  <Input placeholder={t("loginForm.usernamePlaceholder")} {...field} />
                 </FormControl>
-                <FormDescription>
-                  {t("loginForm.usernameDescription")}
-                </FormDescription>
+                <FormDescription>{t("loginForm.usernameDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -107,22 +102,14 @@ export function LoginForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("loginForm.passwordDescription")}
-                </FormDescription>
+                <FormDescription>{t("loginForm.passwordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting
-              ? t("common.loading")
-              : t("loginForm.loginButton")}
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? t("common.loading") : t("loginForm.loginButton")}
           </Button>
         </form>
       </Form>

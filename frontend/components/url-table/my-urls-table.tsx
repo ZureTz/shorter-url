@@ -11,7 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from "@tanstack/react-table";
 import { ChevronDown, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +30,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
@@ -42,15 +42,12 @@ interface DataTableProps<TData, TValue> {
 export function MyUrlsTable<TData, TValue>({
   columns,
   data,
-  isLoading = false,
+  isLoading = false
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
@@ -64,14 +61,14 @@ export function MyUrlsTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {
       pagination: {
-        pageSize: 10, // 设置每页显示10行
-      },
+        pageSize: 10 // 设置每页显示10行
+      }
     },
     state: {
       sorting,
       columnFilters,
-      columnVisibility,
-    },
+      columnVisibility
+    }
   });
 
   return (
@@ -81,16 +78,11 @@ export function MyUrlsTable<TData, TValue>({
           <Search className="h-4 w-4 text-gray-500" />
           <Input
             placeholder={t("myUrls.searchPlaceholder", {
-              defaultValue: "搜索原始链接...",
+              defaultValue: "搜索原始链接..."
             })}
-            value={
-              (table.getColumn("original_url")?.getFilterValue() as string) ??
-              ""
-            }
+            value={(table.getColumn("original_url")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-              table
-                .getColumn("original_url")
-                ?.setFilterValue(event.target.value)
+              table.getColumn("original_url")?.setFilterValue(event.target.value)
             }
             className="w-full sm:max-w-sm"
           />
@@ -112,9 +104,7 @@ export function MyUrlsTable<TData, TValue>({
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
                     {column.id === "short_code" && t("urlTable.shortCode")}
                     {column.id === "original_url" && t("urlTable.originalUrl")}
@@ -138,10 +128,7 @@ export function MyUrlsTable<TData, TValue>({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -162,35 +149,26 @@ export function MyUrlsTable<TData, TValue>({
               ))
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="text-gray-500 dark:text-gray-400">
                       {t("myUrls.noLinks", {
-                        defaultValue: "还没有创建任何短链接",
+                        defaultValue: "还没有创建任何短链接"
                       })}
                     </div>
                     <div className="text-sm text-gray-400 dark:text-gray-500">
                       {t("myUrls.createFirst", {
-                        defaultValue: "去创建您的第一个短链接吧！",
+                        defaultValue: "去创建您的第一个短链接吧！"
                       })}
                     </div>
                   </div>
@@ -206,19 +184,14 @@ export function MyUrlsTable<TData, TValue>({
         <div className="flex items-center space-x-2">
           <div className="flex-1 text-sm text-muted-foreground">
             {t("myUrls.showing", { defaultValue: "显示第" })}{" "}
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}{" "}
+            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}{" "}
             {t("myUrls.to", { defaultValue: "到" })}{" "}
             {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length,
+              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
             )}{" "}
-            {t("myUrls.items", { defaultValue: "项" })}，
-            {t("myUrls.total", { defaultValue: "共" })}{" "}
-            {table.getFilteredRowModel().rows.length}{" "}
-            {t("myUrls.items", { defaultValue: "项" })}
+            {t("myUrls.items", { defaultValue: "项" })}，{t("myUrls.total", { defaultValue: "共" })}{" "}
+            {table.getFilteredRowModel().rows.length} {t("myUrls.items", { defaultValue: "项" })}
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">

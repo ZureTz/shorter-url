@@ -14,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 // 根据后端 repo.Url 模型定义的类型
@@ -35,10 +35,7 @@ export type Url = {
 };
 
 // 创建列定义的工厂函数，接受翻译函数和刷新回调
-export const createColumns = (
-  t: TFunction,
-  onDelete?: () => void,
-): ColumnDef<Url>[] => [
+export const createColumns = (t: TFunction, onDelete?: () => void): ColumnDef<Url>[] => [
   {
     accessorKey: "short_code",
     header: ({ column }) => {
@@ -83,7 +80,7 @@ export const createColumns = (
           </Button>
         </div>
       );
-    },
+    }
   },
   {
     accessorKey: "original_url",
@@ -126,7 +123,7 @@ export const createColumns = (
           </Button>
         </div>
       );
-    },
+    }
   },
   {
     accessorKey: "is_custom",
@@ -145,7 +142,7 @@ export const createColumns = (
           {isCustom ? t("urlTable.yes") : t("urlTable.no")}
         </span>
       );
-    },
+    }
   },
   {
     accessorKey: "created_at",
@@ -173,7 +170,7 @@ export const createColumns = (
           </div>
         </div>
       );
-    },
+    }
   },
   {
     accessorKey: "expired_at",
@@ -195,13 +192,9 @@ export const createColumns = (
 
       // 永不过期的项目视为最大值
       const timeA =
-        !expiredAtA || !expiredAtA.Valid
-          ? Infinity
-          : new Date(expiredAtA.Time).getTime();
+        !expiredAtA || !expiredAtA.Valid ? Infinity : new Date(expiredAtA.Time).getTime();
       const timeB =
-        !expiredAtB || !expiredAtB.Valid
-          ? Infinity
-          : new Date(expiredAtB.Time).getTime();
+        !expiredAtB || !expiredAtB.Valid ? Infinity : new Date(expiredAtB.Time).getTime();
 
       return timeA - timeB;
     },
@@ -227,18 +220,15 @@ export const createColumns = (
           </div>
           <div
             className={`text-xs ${
-              isExpired
-                ? "text-red-500 dark:text-red-400"
-                : "text-gray-500 dark:text-gray-400"
+              isExpired ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"
             }`}
           >
             {date.toLocaleTimeString(navigator.language)}
-            {isExpired &&
-              ` (${t("urlTable.expired", { defaultValue: "Expired" })})`}
+            {isExpired && ` (${t("urlTable.expired", { defaultValue: "Expired" })})`}
           </div>
         </div>
       );
-    },
+    }
   },
   {
     id: "actions",
@@ -251,12 +241,12 @@ export const createColumns = (
           const response = await fetch("/api/user/url", {
             method: "DELETE",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "application/json"
             },
             body: JSON.stringify({
               id: url.id,
-              short_code: url.short_code,
-            }),
+              short_code: url.short_code
+            })
           });
 
           if (!response.ok) {
@@ -273,8 +263,7 @@ export const createColumns = (
         } catch (error) {
           console.error("删除短链接失败:", error);
           toast.error(t("urlTable.deleteError"), {
-            description:
-              error instanceof Error ? error.message : "Unknown error",
+            description: error instanceof Error ? error.message : "Unknown error"
           });
         }
       };
@@ -293,12 +282,8 @@ export const createColumns = (
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("urlTable.deleteConfirmTitle")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("urlTable.deleteConfirmDesc")}
-              </AlertDialogDescription>
+              <AlertDialogTitle>{t("urlTable.deleteConfirmTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("urlTable.deleteConfirmDesc")}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
@@ -312,6 +297,6 @@ export const createColumns = (
           </AlertDialogContent>
         </AlertDialog>
       );
-    },
-  },
+    }
+  }
 ];

@@ -15,7 +15,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
@@ -32,18 +32,16 @@ export function ShortLinkForm() {
       .string()
       .optional()
       .refine(
-        (val) =>
-          !val ||
-          (val.length >= 4 && val.length <= 10 && /^[a-zA-Z0-9]+$/.test(val)),
+        (val) => !val || (val.length >= 4 && val.length <= 10 && /^[a-zA-Z0-9]+$/.test(val)),
         {
-          message: t("shortLinkForm.customCodeInvalid"),
-        },
+          message: t("shortLinkForm.customCodeInvalid")
+        }
       ),
     duration: z
       .number()
       .min(1, t("shortLinkForm.durationMin"))
       .max(365, t("shortLinkForm.durationMax"))
-      .optional(),
+      .optional()
   });
 
   const [shortLinkResult, setShortLinkResult] = useState<{
@@ -57,8 +55,8 @@ export function ShortLinkForm() {
     defaultValues: {
       original_url: "",
       custom_code: "",
-      duration: undefined,
-    },
+      duration: undefined
+    }
   });
 
   // 2. Define a submit handler.
@@ -69,9 +67,9 @@ export function ShortLinkForm() {
       const response = await fetch("/api/user/url", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ ...values, created_by: user?.username }),
+        body: JSON.stringify({ ...values, created_by: user?.username })
       });
 
       if (response.ok) {
@@ -84,8 +82,8 @@ export function ShortLinkForm() {
 
         toast.success(t("shortLinkForm.createSuccess"), {
           description: t("shortLinkForm.createSuccessDesc", {
-            shortUrl: result.short_url || result.shortUrl,
-          }),
+            shortUrl: result.short_url || result.shortUrl
+          })
         });
 
         form.reset();
@@ -93,19 +91,19 @@ export function ShortLinkForm() {
         // 保存短链接结果
         setShortLinkResult({
           shortUrl: result.short_url || result.shortUrl,
-          expiredAt: result.expired_at || result.expiredAt,
+          expiredAt: result.expired_at || result.expiredAt
         });
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error("创建短链接失败:", response.statusText);
         toast.error(t("shortLinkForm.createError"), {
-          description: errorData.message || response.statusText,
+          description: errorData.message || response.statusText
         });
       }
     } catch (error) {
       console.error("请求失败:", error);
       toast.error(t("shortLinkForm.createError"), {
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: error instanceof Error ? error.message : "Unknown error"
       });
     }
   }
@@ -121,14 +119,9 @@ export function ShortLinkForm() {
               <FormItem>
                 <FormLabel>{t("shortLinkForm.originalUrl")}</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder={t("shortLinkForm.originalUrlPlaceholder")}
-                    {...field}
-                  />
+                  <Input placeholder={t("shortLinkForm.originalUrlPlaceholder")} {...field} />
                 </FormControl>
-                <FormDescription>
-                  {t("shortLinkForm.originalUrlDescription")}
-                </FormDescription>
+                <FormDescription>{t("shortLinkForm.originalUrlDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -141,14 +134,9 @@ export function ShortLinkForm() {
               <FormItem>
                 <FormLabel>{t("shortLinkForm.customCode")}</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder={t("shortLinkForm.customCodePlaceholder")}
-                    {...field}
-                  />
+                  <Input placeholder={t("shortLinkForm.customCodePlaceholder")} {...field} />
                 </FormControl>
-                <FormDescription>
-                  {t("shortLinkForm.customCodeDescription")}
-                </FormDescription>
+                <FormDescription>{t("shortLinkForm.customCodeDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -166,16 +154,12 @@ export function ShortLinkForm() {
                     placeholder={t("shortLinkForm.durationPlaceholder")}
                     {...field}
                     onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      )
+                      field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
                     }
                     value={field.value || ""}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("shortLinkForm.durationDescription")}
-                </FormDescription>
+                <FormDescription>{t("shortLinkForm.durationDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -220,12 +204,9 @@ export function ShortLinkForm() {
                 {t("shortLinkForm.expiredAt")}:{" "}
               </span>
               <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                {!shortLinkResult.expiredAt ||
-                shortLinkResult.expiredAt === "0001-01-01T00:00:00Z"
+                {!shortLinkResult.expiredAt || shortLinkResult.expiredAt === "0001-01-01T00:00:00Z"
                   ? t("shortLinkForm.permanent")
-                  : new Date(shortLinkResult.expiredAt).toLocaleString(
-                      navigator.language,
-                    )}
+                  : new Date(shortLinkResult.expiredAt).toLocaleString(navigator.language)}
               </span>
             </div>
           </div>

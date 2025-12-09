@@ -8,11 +8,11 @@ import translationEN from "./locales/en/translation.json";
 // 翻译资源
 const resources = {
   zh: {
-    translation: translationZH,
+    translation: translationZH
   },
   en: {
-    translation: translationEN,
-  },
+    translation: translationEN
+  }
 };
 
 i18n
@@ -22,8 +22,8 @@ i18n
     lng: navigator.language, // 默认语言
     fallbackLng: "en", // 备用语言
     interpolation: {
-      escapeValue: false, // React 已经安全地处理了 XSS
-    },
+      escapeValue: false // React 已经安全地处理了 XSS
+    }
   });
 
 export default i18n;

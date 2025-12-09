@@ -16,7 +16,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -41,9 +41,7 @@ export function RegisterForm() {
         .min(6, t("registerForm.passwordMin"))
         .max(50, t("registerForm.passwordMax"))
         .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("registerForm.passwordInvalid")),
-      confirmed_password: z
-        .string()
-        .min(1, t("registerForm.confirmedPasswordRequired")),
+      confirmed_password: z.string().min(1, t("registerForm.confirmedPasswordRequired")),
       email: z
         .string()
         .min(1, t("registerForm.emailRequired"))
@@ -52,11 +50,11 @@ export function RegisterForm() {
         .string()
         .min(1, t("registerForm.emailCodeRequired"))
         .length(6, t("registerForm.emailCodeLength"))
-        .regex(/^\d{6}$/, t("registerForm.emailCodeInvalid")),
+        .regex(/^\d{6}$/, t("registerForm.emailCodeInvalid"))
     })
     .refine((data) => data.password === data.confirmed_password, {
       message: t("registerForm.passwordMismatch"),
-      path: ["confirmed_password"],
+      path: ["confirmed_password"]
     });
 
   // 1. Define your form.
@@ -67,8 +65,8 @@ export function RegisterForm() {
       password: "",
       confirmed_password: "",
       email: "",
-      email_code: "",
-    },
+      email_code: ""
+    }
   });
 
   // 2. Define a submit handler.
@@ -77,29 +75,29 @@ export function RegisterForm() {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(values)
       });
 
       const data = await response.json();
 
       if (response.ok) {
         toast.success(t("registerForm.registerSuccess"), {
-          description: t("registerForm.registerSuccessDesc"),
+          description: t("registerForm.registerSuccessDesc")
         });
         form.reset();
         // Route to login page after successful registration
         router.push("/login");
       } else {
         toast.error(t("registerForm.registerError"), {
-          description: data.message || t("registerForm.registerErrorDesc"),
+          description: data.message || t("registerForm.registerErrorDesc")
         });
       }
     } catch (error) {
       console.error("注册失败:", error);
       toast.error(t("registerForm.registerException"), {
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: error instanceof Error ? error.message : "Unknown error"
       });
     }
   }
@@ -124,9 +122,9 @@ export function RegisterForm() {
       const response = await fetch("/api/email_code", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       });
 
       const data = await response.json();
@@ -147,13 +145,13 @@ export function RegisterForm() {
         }, 1000);
       } else {
         toast.error(t("registerForm.sendCodeError"), {
-          description: data.message,
+          description: data.message
         });
       }
     } catch (error) {
       console.error("发送验证码失败:", error);
       toast.error(t("registerForm.sendCodeError"), {
-        description: error instanceof Error ? error.message : "Network error",
+        description: error instanceof Error ? error.message : "Network error"
       });
     } finally {
       setIsCodeSending(false);
@@ -171,14 +169,9 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>{t("registerForm.username")}</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder={t("registerForm.usernamePlaceholder")}
-                    {...field}
-                  />
+                  <Input placeholder={t("registerForm.usernamePlaceholder")} {...field} />
                 </FormControl>
-                <FormDescription>
-                  {t("registerForm.usernameDescription")}
-                </FormDescription>
+                <FormDescription>{t("registerForm.usernameDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -197,9 +190,7 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("registerForm.passwordDescription")}
-                </FormDescription>
+                <FormDescription>{t("registerForm.passwordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -218,9 +209,7 @@ export function RegisterForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("registerForm.confirmedPasswordDescription")}
-                </FormDescription>
+                <FormDescription>{t("registerForm.confirmedPasswordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -233,15 +222,9 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>{t("registerForm.email")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder={t("registerForm.emailPlaceholder")}
-                    {...field}
-                  />
+                  <Input type="email" placeholder={t("registerForm.emailPlaceholder")} {...field} />
                 </FormControl>
-                <FormDescription>
-                  {t("registerForm.emailDescription")}
-                </FormDescription>
+                <FormDescription>{t("registerForm.emailDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -255,10 +238,7 @@ export function RegisterForm() {
                 <FormLabel>{t("registerForm.emailCode")}</FormLabel>
                 <div className="flex gap-2">
                   <FormControl>
-                    <Input
-                      placeholder={t("registerForm.emailCodePlaceholder")}
-                      {...field}
-                    />
+                    <Input placeholder={t("registerForm.emailCodePlaceholder")} {...field} />
                   </FormControl>
                   <Button
                     type="button"
@@ -274,22 +254,14 @@ export function RegisterForm() {
                         : t("registerForm.sendCodeButton")}
                   </Button>
                 </div>
-                <FormDescription>
-                  {t("registerForm.emailCodeDescription")}
-                </FormDescription>
+                <FormDescription>{t("registerForm.emailCodeDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting
-              ? t("common.loading")
-              : t("registerForm.registerButton")}
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? t("common.loading") : t("registerForm.registerButton")}
           </Button>
         </form>
       </Form>

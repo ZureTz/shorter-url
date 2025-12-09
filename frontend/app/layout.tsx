@@ -13,7 +13,7 @@ import "@/i18n/i18n";
 import "./globals.css";
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -52,10 +52,7 @@ export default function RootLayout({
   }, [t, i18n.language]);
 
   return (
-    <html
-      lang={i18n.language === "zh" ? "zh-CN" : "en"}
-      suppressHydrationWarning
-    >
+    <html lang={i18n.language === "zh" ? "zh-CN" : "en"} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -11,7 +11,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarMenuItem
 } from "@/components/ui/sidebar";
 
 import { ModeToggle } from "@/components/theme-toggle";
@@ -28,13 +28,13 @@ export function AppSidebar() {
     {
       title: t("nav.createShortLink"),
       url: "/",
-      icon: Home,
+      icon: Home
     },
     {
       title: t("nav.myShortLinks"),
       url: "/my-urls",
-      icon: Inbox,
-    },
+      icon: Inbox
+    }
   ];
 
   const userManagementItems = [
@@ -43,8 +43,8 @@ export function AppSidebar() {
       title: t("nav.logout"),
       url: "#",
       icon: LogOut,
-      action: logout,
-    },
+      action: logout
+    }
   ];
 
   return (

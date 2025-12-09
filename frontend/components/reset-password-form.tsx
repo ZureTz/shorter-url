@@ -17,7 +17,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
@@ -43,17 +43,12 @@ export function ResetPasswordForm() {
         .min(1, t("resetPasswordForm.newPasswordRequired"))
         .min(6, t("resetPasswordForm.newPasswordMin"))
         .max(50, t("resetPasswordForm.newPasswordMax"))
-        .regex(
-          /^[a-zA-Z0-9_!@#$%^&*]+$/,
-          t("resetPasswordForm.newPasswordInvalid"),
-        ),
-      confirmed_password: z
-        .string()
-        .min(1, t("resetPasswordForm.confirmedPasswordRequired")),
+        .regex(/^[a-zA-Z0-9_!@#$%^&*]+$/, t("resetPasswordForm.newPasswordInvalid")),
+      confirmed_password: z.string().min(1, t("resetPasswordForm.confirmedPasswordRequired"))
     })
     .refine((data) => data.password === data.confirmed_password, {
       message: t("resetPasswordForm.passwordMismatch"),
-      path: ["confirmed_password"],
+      path: ["confirmed_password"]
     });
 
   // 1. Define your form.
@@ -63,8 +58,8 @@ export function ResetPasswordForm() {
       email: "",
       email_code: "",
       password: "",
-      confirmed_password: "",
-    },
+      confirmed_password: ""
+    }
   });
 
   // 2. Define a submit handler.
@@ -75,29 +70,29 @@ export function ResetPasswordForm() {
       const response = await fetch("/api/reset_password", {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(values)
       });
 
       const data = await response.json();
 
       if (response.ok) {
         toast.success(t("resetPasswordForm.resetSuccess"), {
-          description: t("resetPasswordForm.resetSuccessDesc"),
+          description: t("resetPasswordForm.resetSuccessDesc")
         });
         form.reset();
         // 重置成功后跳转到登录页面
         router.push("/login");
       } else {
         toast.error(t("resetPasswordForm.resetError"), {
-          description: data.message || t("resetPasswordForm.resetErrorDesc"),
+          description: data.message || t("resetPasswordForm.resetErrorDesc")
         });
       }
     } catch (error) {
       console.error("密码重置失败:", error);
       toast.error(t("resetPasswordForm.resetException"), {
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: error instanceof Error ? error.message : "Unknown error"
       });
     }
   }
@@ -122,9 +117,9 @@ export function ResetPasswordForm() {
       const response = await fetch("/api/email_code", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       });
 
       const data = await response.json();
@@ -145,13 +140,13 @@ export function ResetPasswordForm() {
         }, 1000);
       } else {
         toast.error(t("resetPasswordForm.sendCodeError"), {
-          description: data.message,
+          description: data.message
         });
       }
     } catch (error) {
       console.error("发送验证码失败:", error);
       toast.error(t("resetPasswordForm.sendCodeError"), {
-        description: error instanceof Error ? error.message : "Network error",
+        description: error instanceof Error ? error.message : "Network error"
       });
     } finally {
       setIsCodeSending(false);
@@ -175,9 +170,7 @@ export function ResetPasswordForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("resetPasswordForm.emailDescription")}
-                </FormDescription>
+                <FormDescription>{t("resetPasswordForm.emailDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -191,10 +184,7 @@ export function ResetPasswordForm() {
                 <FormLabel>{t("resetPasswordForm.emailCode")}</FormLabel>
                 <div className="flex gap-2">
                   <FormControl>
-                    <Input
-                      placeholder={t("resetPasswordForm.emailCodePlaceholder")}
-                      {...field}
-                    />
+                    <Input placeholder={t("resetPasswordForm.emailCodePlaceholder")} {...field} />
                   </FormControl>
                   <Button
                     type="button"
@@ -210,9 +200,7 @@ export function ResetPasswordForm() {
                         : t("resetPasswordForm.sendCodeButton")}
                   </Button>
                 </div>
-                <FormDescription>
-                  {t("resetPasswordForm.emailCodeDescription")}
-                </FormDescription>
+                <FormDescription>{t("resetPasswordForm.emailCodeDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -231,9 +219,7 @@ export function ResetPasswordForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("resetPasswordForm.newPasswordDescription")}
-                </FormDescription>
+                <FormDescription>{t("resetPasswordForm.newPasswordDescription")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -244,15 +230,11 @@ export function ResetPasswordForm() {
             name="confirmed_password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  {t("resetPasswordForm.confirmedPassword")}
-                </FormLabel>
+                <FormLabel>{t("resetPasswordForm.confirmedPassword")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder={t(
-                      "resetPasswordForm.confirmedPasswordPlaceholder",
-                    )}
+                    placeholder={t("resetPasswordForm.confirmedPasswordPlaceholder")}
                     {...field}
                   />
                 </FormControl>
@@ -264,14 +246,8 @@ export function ResetPasswordForm() {
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting
-              ? t("common.loading")
-              : t("resetPasswordForm.resetButton")}
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? t("common.loading") : t("resetPasswordForm.resetButton")}
           </Button>
         </form>
       </Form>

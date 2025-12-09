@@ -10,13 +10,15 @@
   "settings": {
     "cSpell.words": [
       "alphanum",
+      "bunx",
       "echojwt",
       "eqfield",
       "gomail",
       "labstack",
       "sonner",
       "sqlc",
-      "sslmode"
+      "sslmode",
+      "turbopack"
     ]
   }
 }

@@ -24,9 +24,7 @@ export default function RegisterPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             {t("registerForm.title")}
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            {t("registerForm.subtitle")}
-          </p>
+          <p className="text-gray-600 dark:text-gray-300">{t("registerForm.subtitle")}</p>
         </div>
         <RegisterForm />
       </div>
