@@ -9,21 +9,20 @@ const nextConfig: NextConfig = {
   distDir: "dist"
 
   // async rewrites() {
-  //   const backendUrl =
-  //     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  //   const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
   //   return [
   //     {
   //       source: "/api/:path*",
-  //       destination: `${backendUrl}/api/:path*`,
+  //       destination: `${backendUrl}/api/:path*`
   //     },
   //     {
   //       source: "/:path*",
-  //       destination: `${backendUrl}/:path*`,
-  //     },
+  //       destination: `${backendUrl}/:path*`
+  //     }
   //   ];
-  // },
-  // // This is required to support PostHog trailing slash API requests
+  // }
+  // This is required to support PostHog trailing slash API requests
   // skipTrailingSlashRedirect: true,
 };
 
